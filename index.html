@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#05080d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HiLo">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<title>FIRST PERSON HiLo 判定計算ツール</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#05080d;--panel:#0b1118;--line:#26313d;--text:#f5f7fa;--muted:#aab3bf;--green:#39e76f;--blue:#3b9cff;--gold:#ffd02a;--red:#ff4949}
+body{margin:0;background:linear-gradient(#030507,#09111a 35%,#05080d);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif}
+.app{max-width:727px;margin:auto;min-height:100vh;padding:calc(10px + env(safe-area-inset-top)) 16px calc(82px + env(safe-area-inset-bottom))}
+header{height:92px;display:grid;grid-template-columns:54px 1fr 54px;align-items:center;text-align:center}
+header button{height:42px;width:42px;border:0;background:none;color:white;font-size:30px}
+.logo{font-size:24px;font-weight:900;letter-spacing:.2px}.logo span{color:var(--gold)}.tag{font-size:12px;color:#b6bec8;margin-top:3px}
+.panel{background:linear-gradient(145deg,#10171f,#080d13);border:1px solid var(--line);border-radius:18px;padding:14px;margin:10px 0;box-shadow:0 8px 25px #0007}
+.title{font-size:17px;font-weight:900;margin-bottom:13px}.title b{color:#e6edf4}
+.cards{display:grid;grid-template-columns:repeat(13,1fr);gap:5px}
+.card{height:52px;border-radius:10px;border:1px solid #34404d;background:#080d13;color:white;font-size:18px;font-weight:900}
+.card.active{background:linear-gradient(#ffe341,#e4a900);color:#111;border-color:#ffe76b;box-shadow:0 0 15px #ffd02a55}
+.range{display:flex;justify-content:space-between;color:#dbe2ea;font-size:13px;margin:8px 4px 0}
+.arrowline{height:12px;border-top:2px solid #a9b1bb;margin:3px 35px 0;position:relative}
+.arrowline:before,.arrowline:after{content:"";position:absolute;top:-7px;width:10px;height:10px;border-top:2px solid #a9b1bb;border-right:2px solid #a9b1bb}
+.arrowline:before{left:-3px;transform:rotate(-135deg)}.arrowline:after{right:-3px;transform:rotate(45deg)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{border:1px solid #34404d;border-radius:14px;background:#080d13;padding:10px}.field.green{border-color:#24ad51}.field.blue{border-color:#277fd4}
+.field label{display:block;text-align:center;font-size:13px;font-weight:900;margin-bottom:7px}.green label{color:var(--green)}.blue label{color:var(--blue)}
+input{width:100%;background:none;border:0;outline:0;color:white;text-align:center;font-size:29px;font-weight:900}
+.unit{text-align:right;color:#aab3bf;font-size:12px}
+.bet{display:grid;grid-template-columns:1fr 48px 1fr;gap:6px;align-items:center}.bet .arrow{font-size:38px;text-align:center;color:#cdd4dc}
+.goldbox{margin-top:11px;border:1px solid #a48718;border-radius:13px;background:linear-gradient(90deg,#12100a,#1a1709,#0e100d);padding:10px;display:flex;align-items:center;justify-content:center;gap:16px}.goldbox .caption{font-weight:900;font-size:14px}.goldbox strong{font-size:34px;color:var(--gold)}
+.results{display:grid;grid-template-columns:1fr 1fr;gap:12px}.result{border:1px solid #205d38;border-radius:14px;overflow:hidden;background:#08120d}.result.bluebox{border-color:#205b9b;background:#080f18}
+.rhead{text-align:center;font-size:17px;font-weight:900;padding:10px 4px;border-bottom:1px solid #24332d}.bluebox .rhead{color:var(--blue);border-color:#20354b}.rhead.greenh{color:var(--green)}
+.rrow{display:flex;justify-content:space-between;gap:8px;padding:9px 11px;border-bottom:1px dashed #29342f;font-size:12px}.rrow:last-child{border-bottom:0}.rrow strong{font-size:17px}
+.recommend{border:2px solid #16d94f;border-radius:15px;background:linear-gradient(145deg,#073f18,#063014);padding:18px 10px;text-align:center;box-shadow:0 0 30px #19d94d20}.recommend.blueRec{border-color:#2c8fe9;background:linear-gradient(145deg,#073052,#061f35)}.recommend.neutral{border-color:#606b78;background:#11171f}
+.recSmall{font-size:12px;color:#c7d0d9}.recBig{font-size:38px;font-weight:1000;margin:5px 0}.recBtn{display:inline-block;background:#f5f7fa;color:#17201a;border-radius:9px;padding:9px 22px;font-size:15px;font-weight:900}
+footer{position:fixed;left:0;right:0;bottom:0;background:#080c12ee;border-top:1px solid #26313d;height:72px;padding-bottom:env(safe-area-inset-bottom);display:flex;justify-content:center}
+.nav{width:min(727px,100%);display:grid;grid-template-columns:repeat(4,1fr);text-align:center}.nav div{padding-top:10px;color:#aeb6c0;font-size:11px}.nav .active{color:var(--gold)}.nav i{display:block;font-style:normal;font-size:24px;line-height:27px}
+.note{color:#7f8996;font-size:10px;line-height:1.5;text-align:center;margin:12px 5px}
+@media(max-width:430px){.app{padding-left:10px;padding-right:10px}.panel{padding:11px}.card{height:45px;font-size:15px}.logo{font-size:20px}.results{gap:7px}.rrow{padding:8px 7px;font-size:11px}.rrow strong{font-size:15px}.recBig{font-size:29px}.goldbox strong{font-size:29px}.two{gap:7px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+<button onclick="resetAll()">↻</button>
+<div><div class="logo">FIRST PERSON <span>HiLo</span></div><div class="tag">判定計算ツール</div></div>
+<button onclick="help()">?</button>
+</header>
+
+<section class="panel">
+<div class="title">① 現在のカードを選択</div>
+<div class="cards" id="cards"></div>
+<div class="range"><span>低</span><span>高</span></div><div class="arrowline"></div>
+</section>
+
+<section class="panel">
+<div class="title">② ゲーム画面の倍率を入力</div>
+<div class="two">
+<div class="field green"><label>HIGHER / SAME<br><small>（高い または 同じ）</small></label><input id="ho" inputmode="decimal" value="1.60" oninput="calc()"><div class="unit">×</div></div>
+<div class="field blue"><label>LOWER / SAME<br><small>（低い または 同じ）</small></label><input id="lo" inputmode="decimal" value="2.10" oninput="calc()"><div class="unit">×</div></div>
+</div>
+</section>
+
+<section class="panel">
+<div class="title">③ 賭け金を入力（倍率を自動計算）</div>
+<div class="bet">
+<div class="field"><label>現在の賭け金</label><input id="cb" inputmode="numeric" value="1000" oninput="calc()"><div class="unit">円</div></div>
+<div class="arrow">→</div>
+<div class="field"><label>次に当てたときの賭け金</label><input id="nb" inputmode="numeric" value="1500" oninput="calc()"><div class="unit">円</div></div>
+</div>
+<div class="goldbox"><span class="caption">賭け金の倍率</span><strong id="bm">1.50 倍</strong></div>
+</section>
+
+<section class="panel">
+<div class="title">④ 計算結果（期待値）</div>
+<div class="results">
+<div class="result"><div class="rhead greenh">HIGHER / SAME</div><div class="rrow"><span>的中確率</span><strong class="green" id="hp">—</strong></div><div class="rrow"><span>期待値</span><strong class="green" id="hev">—</strong></div><div class="rrow"><span>的中時の払戻額</span><strong class="green" id="hr">—</strong></div><div class="rrow"><span>的中時の純利益</span><strong class="green" id="hpr">—</strong></div></div>
+<div class="result bluebox"><div class="rhead">LOWER / SAME</div><div class="rrow"><span>的中確率</span><strong class="blue" id="lp">—</strong></div><div class="rrow"><span>期待値</span><strong id="lev" class="red">—</strong></div><div class="rrow"><span>的中時の払戻額</span><strong class="blue" id="lr">—</strong></div><div class="rrow"><span>的中時の純利益</span><strong class="blue" id="lpr">—</strong></div></div>
+</div>
+</section>
+
+<section class="panel">
+<div class="title">⑤ 推奨される選択</div>
+<div id="rec" class="recommend"><div class="recSmall">期待値を比較</div><div class="recBig" id="rtext">HIGHER / SAME</div><div class="recBtn">✓ こちらを推奨します！</div></div>
+</section>
+
+<div class="note">このツールは現在のカードと入力した倍率から期待値を比較します。RNGゲームのため、次のカードの結果を予測・保証するものではありません。</div>
+</div>
+<footer><nav class="nav"><div class="active"><i>▣</i>計算</div><div><i>◷</i>履歴</div><div><i>▥</i>統計</div><div><i>⚙</i>設定</div></nav></footer>
+
+<script>
+const ranks=["2","3","4","5","6","7","8","9","10","J","Q","K","A"];let selected="7";
+const cards=document.getElementById("cards");
+ranks.forEach((r,i)=>{const b=document.createElement("button");b.className="card";b.textContent=r;b.onclick=()=>{selected=r;[...cards.children].forEach(x=>x.classList.remove("active"));b.classList.add("active");calc()};cards.appendChild(b);});
+cards.children[5].classList.add("active");
+function num(id){return parseFloat(document.getElementById(id).value)||0}
+function probs(r){const v=ranks.indexOf(r)+2;return [r==="A"?0:(16-v)/13,r==="2"?0:(v-1)/13]}
+function money(v){return Math.round(v).toLocaleString("ja-JP")+"円"}
+function calc(){
+ const [hp,lp]=probs(selected),ho=num("ho"),lo=num("lo"),cb=num("cb"),nb=num("nb");
+ const hev=hp*ho-1,lev=lp*lo-1;
+ document.getElementById("hp").textContent=(hp*100).toFixed(2)+"%";document.getElementById("lp").textContent=(lp*100).toFixed(2)+"%";
+ document.getElementById("hev").textContent=(hev>=0?"+":"")+hev.toFixed(3);document.getElementById("lev").textContent=(lev>=0?"+":"")+lev.toFixed(3);
+ document.getElementById("hr").textContent=ho&&nb?money(nb*ho):"—";document.getElementById("hpr").textContent=ho&&nb?"+"+money(nb*(ho-1)):"—";
+ document.getElementById("lr").textContent=lo&&nb?money(nb*lo):"—";document.getElementById("lpr").textContent=lo&&nb?"+"+money(nb*(lo-1)):"—";
+ document.getElementById("bm").textContent=cb?((nb/cb).toFixed(2)+" 倍"):"—";
+ const rec=document.getElementById("rec"),rt=document.getElementById("rtext");rec.className="recommend";
+ if(!ho||!lo){rt.textContent="倍率を入力";return}
+ if(hev<=0&&lev<=0){rt.textContent="BETなし";rec.classList.add("neutral")}
+ else if(hev>lev){rt.textContent="HIGHER / SAME"}
+ else if(lev>hev){rt.textContent="LOWER / SAME";rec.classList.add("blueRec")}
+ else {rt.textContent="ほぼ同じ";rec.classList.add("neutral")}
+}
+function resetAll(){selected="7";[...cards.children].forEach((x,i)=>x.classList.toggle("active",i===5));["ho","lo","cb","nb"].forEach((id,i)=>document.getElementById(id).value=["1.60","2.10","1000","1500"][i]);calc()}
+function help(){alert("① カードをタップ\n② ゲーム画面の倍率を入力\n③ 現在の賭け金と次回の賭け金を入力\n④ 推奨結果を確認\n\n賭け金倍率 = 次回の賭け金 ÷ 現在の賭け金")}
+calc();
+if("serviceWorker" in navigator) addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));
+</script>
+</body>
+</html>
