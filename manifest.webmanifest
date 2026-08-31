@@ -1,12 +1,11 @@
 {
-  "name": "FIRST PERSON HiLo 判定計算ツール",
+  "name": "FIRST PERSON HiLo",
   "short_name": "HiLo",
   "start_url": "./",
-  "scope": "./",
   "display": "standalone",
+  "background_color": "#05070a",
+  "theme_color": "#05070a",
   "orientation": "portrait",
-  "background_color": "#05080d",
-  "theme_color": "#05080d",
   "icons": [
     {
       "src": "icons/icon-180.png",
