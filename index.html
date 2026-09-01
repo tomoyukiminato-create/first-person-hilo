@@ -14,7 +14,7 @@
   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
   <link rel="icon" href="./icon-192.png" sizes="192x192">
   <link rel="icon" href="./icon-512.png" sizes="512x512">
-  <title>First Person HiLo</title>
+  <title>First Person HiLo - Correct Probability</title>
   <style>
     :root{
       --bg:#03080d;--panel:#08131e;--panel2:#0b1826;--line:#344253;
@@ -138,7 +138,7 @@
         <div class="mult low"><div class="lab lowtxt">LOW倍率</div><span id="lowMult" class="val lowtxt">1.32</span>倍</div>
         <div class="mult high"><div class="lab hightxt">HIGH倍率</div><span id="highMult" class="val hightxt">1.86</span>倍</div>
       </div>
-      <div class="formula">※ 倍率 = 払戻し総額 ÷ 賭け金</div>
+      <div class="formula">※ 倍率 = 払戻し総額 ÷ 賭け金</div><div class="formula">※ 通常は Lower or Same / Higher or Same。2は Same / Higher、Aは Lower / Same。</div>
     </div>
 
     <div class="result-title">③ 判定結果（EV = 的中確率 × 払戻し倍率）</div>
@@ -150,18 +150,18 @@
 
     <div class="stats">
       <div class="stat low">
-        <div id="lowHead" class="head lowtxt">LOW</div>
+        <div id="lowHead" class="head lowtxt">LOWER OR SAME</div>
         <div class="body"><div>的中確率</div><div id="lowProb" class="prob lowtxt">46.15%</div><div>EV</div><div id="lowEV" class="ev lowtxt">0.6092</div></div>
       </div>
       <div class="stat high">
-        <div id="highHead" class="head hightxt">HIGH</div>
+        <div id="highHead" class="head hightxt">HIGHER OR SAME</div>
         <div class="body"><div>的中確率</div><div id="highProb" class="prob hightxt">53.85%</div><div>EV</div><div id="highEV" class="ev hightxt">1.0015</div></div>
       </div>
     </div>
 
     <button id="saveBtn" class="save" type="button">この判定を履歴に保存</button>
     <button id="resetBtn" class="reset" type="button">↻ リセット</button>
-    <div class="note">入力した数値から確率とEVを比較する計算ツールです。結果や利益を保証するものではありません。</div>
+    <div class="note">公式ルールに合わせ、次のカードは毎回新しい52枚デッキから出る前提で確率とEVを計算します。過去の履歴は確率に反映しません。結果や利益を保証するものではありません。</div>
   </section>
 
   <section id="history" class="screen">
@@ -203,7 +203,7 @@
       <h3>② 倍率を入力</h3>
       <p>倍率を直接入力するか、賭け金とLOW/HIGHそれぞれの払戻し総額から倍率を自動計算します。</p>
       <h3>③ 判定を見る</h3>
-      <p>LOWとHIGHのEVを比較し、高い側を中央に大きく表示します。</p>
+      <p>ゲーム画面の2つの選択肢（通常はLower or Same / Higher or Same）のEVを比較し、高い側を中央に大きく表示します。2ではSame / Higher、AではLower / Sameになります。</p>
       <div class="install"><strong>iPhoneのホーム画面に追加</strong><br>SafariでこのPWAを開く → 共有ボタン →「ホーム画面に追加」→「追加」。以後はホーム画面のHiLoアイコンから起動できます。</div>
     </div>
   </section>
@@ -218,7 +218,7 @@
 
 <script>
 (()=>{
-  const ranks=[['2',2],['3',3],['4',4],['5',5],['6',6],['7',7],['8',8],['9',9],['10',10],['J',11],['Q',12],['K',13],['A',1]];
+  const ranks=[['2',2],['3',3],['4',4],['5',5],['6',6],['7',7],['8',8],['9',9],['10',10],['J',11],['Q',12],['K',13],['A',14]];
   let selected={label:'7',value:7};
   let mode='money';
   let lastCalc=null;
@@ -232,7 +232,36 @@
     return Number.isFinite(n)&&n>=0?n:null;
   }
   function probs(v){
-    return {high:(14-v)/13,low:(v-1)/13};
+    if(v===2){
+      return {
+        low:1/13,
+        high:12/13,
+        lowLabel:'SAME (2)',
+        highLabel:'HIGHER (3以上)'
+      };
+    }
+    if(v===14){
+      return {
+        low:12/13,
+        high:1/13,
+        lowLabel:'LOWER (K以下)',
+        highLabel:'SAME (A)'
+      };
+    }
+    return {
+      low:(v-1)/13,
+      high:(15-v)/13,
+      lowLabel:'LOWER OR SAME (' + cardLabel(v) + '以下)',
+      highLabel:'HIGHER OR SAME (' + cardLabel(v) + '以上)'
+    };
+  }
+
+  function cardLabel(v){
+    if(v===11)return 'J';
+    if(v===12)return 'Q';
+    if(v===13)return 'K';
+    if(v===14)return 'A';
+    return String(v);
   }
   function pct(x){return (x*100).toFixed(2)+'%'}
   function moneyMult(id){
@@ -259,6 +288,18 @@
   function render(){
     const p=probs(selected.value);
     const lm=getLowMult(),hm=getHighMult();
+
+    $('lowHead').textContent=p.lowLabel;
+    $('highHead').textContent=p.highLabel;
+
+    const lowMultLabel = document.querySelector('.mult.low .lab');
+    const highMultLabel = document.querySelector('.mult.high .lab');
+    const lowReturnLabel = document.querySelector('label[for="lowReturn"]');
+    const highReturnLabel = document.querySelector('label[for="highReturn"]');
+
+    if(lowMultLabel) lowMultLabel.textContent = p.lowLabel + ' 倍率';
+    if(highMultLabel) highMultLabel.textContent = p.highLabel + ' 倍率';
+
     $('lowMult').textContent=lm===null?'—':lm.toFixed(2);
     $('highMult').textContent=hm===null?'—':hm.toFixed(2);
     $('lowProb').textContent=pct(p.low);
