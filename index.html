@@ -17,8 +17,8 @@
     h1{font-size:21px;margin:0}.sub{color:var(--muted);font-size:12px;margin:4px 0 16px}.panel{background:rgba(13,24,40,.94);border:1px solid var(--line);border-radius:18px;padding:14px;margin:10px 0;box-shadow:0 12px 30px #0004}
     .row{display:flex;gap:9px;align-items:center}.row>*{flex:1}.settings{display:grid;grid-template-columns:1fr 1fr;gap:10px}label{display:block;color:var(--muted);font-size:12px}select,input{width:100%;margin-top:5px;border:1px solid #314963;border-radius:10px;background:#07111e;color:white;padding:10px;font-size:16px}
     .current{display:flex;align-items:center;justify-content:space-between}.card{font-size:42px;font-weight:850;line-height:1}.remaining{color:var(--muted);font-size:13px;text-align:right}
-    .prob{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}.metric{background:#07111e;border-radius:12px;padding:10px;text-align:center}.metric b{display:block;font-size:22px;margin-top:3px}.metric.high b{color:var(--high)}.metric.low b{color:var(--low)}.metric.tie b{color:var(--gold)}
-    .evgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.bet{background:#07111e;border:1px solid var(--line);border-radius:13px;padding:10px}.bet strong{font-size:17px}.bet .ev{float:right;font-weight:800}.money{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.money input{padding:9px;font-size:15px}.mult{margin-top:8px;color:var(--muted);font-size:12px}.mult b{color:white;font-size:16px}.positive{color:var(--good)}.negative{color:var(--bad)}
+    .prob{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}.metric{background:#07111e;border-radius:12px;padding:10px 5px;text-align:center;font-size:12px}.metric b{display:block;font-size:22px;margin-top:3px}.metric small{display:block;color:var(--muted);margin-top:2px}.metric.high b{color:var(--high)}.metric.low b{color:var(--low)}.metric.tie b{color:var(--gold)}
+    .stake{display:block;margin-top:12px;background:#07111e;border:1px solid var(--line);border-radius:13px;padding:10px}.stake input{max-width:180px}.evgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:9px}.bet{background:#07111e;border:1px solid var(--line);border-radius:13px;padding:10px}.bet strong{font-size:17px}.bet .ev{float:right;font-weight:800}.money{margin-top:8px}.money input{padding:9px;font-size:15px}.mult{margin-top:8px;color:var(--muted);font-size:12px}.mult b{color:white;font-size:16px}.positive{color:var(--good)}.negative{color:var(--bad)}
     .decision{text-align:center;border-radius:13px;padding:12px;margin-top:10px;font-size:19px;font-weight:900;background:#07111e}.decision.good{color:#05120d;background:var(--good)}
     .keys{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}.keys button{min-height:48px;border:1px solid #344d6a;border-radius:11px;background:#13243a;color:white;font-size:17px;font-weight:750}.keys button:active{transform:scale(.95);background:#244263}.keys button:last-child{grid-column:4/5}.actions button{border:1px solid #344d6a;background:#101e31;color:#eaf2ff;border-radius:10px;padding:10px}.history{white-space:nowrap;overflow:auto;color:var(--muted);font-size:13px;min-height:20px;margin:9px 0}.note{font-size:11px;color:var(--muted);line-height:1.5}.warn{color:#ffd18a}
     @media(max-width:430px){.keys{grid-template-columns:repeat(5,1fr)}.keys button:last-child{grid-column:auto}.prob b{font-size:19px}.evgrid{grid-template-columns:1fr}}
@@ -27,39 +27,43 @@
 <body><main>
   <h1>FIRST PERSON HI-LO</h1><p class="sub">確率・期待値・自動判定カウンター</p>
   <section class="panel settings">
-    <label>デッキ方式<select disabled><option>無限デッキ</option></select></label>
+    <label>デッキ方式<select disabled><option>毎回新品（無限相当）</option></select></label>
     <label>同値の扱い<select disabled><option>勝ち</option></select></label>
   </section>
   <section class="panel">
     <div class="current"><div><label>現在のカード</label><div class="card" id="current">—</div></div><div class="remaining">無限デッキ<br><span id="seen">0</span> 枚入力済み</div></div>
-    <div class="prob" style="margin-top:14px"><div class="metric high">HIGH<b id="pHigh">—</b></div><div class="metric tie">同値（勝ち）<b id="pTie">—</b></div><div class="metric low">LOW<b id="pLow">—</b></div></div>
+    <div class="prob" style="margin-top:14px"><div class="metric high"><span id="highOption">HIGH＋同値</span><b id="pHigh">—</b><small id="nHigh">—</small></div><div class="metric tie">同値の内訳<b id="pTie">—</b><small>4/52</small></div><div class="metric low"><span id="lowOption">LOW＋同値</span><b id="pLow">—</b><small id="nLow">—</small></div></div>
+    <label class="stake">共通の賭け金<input id="stake" type="number" inputmode="decimal" min="0" step="0.01" value="100"></label>
     <div class="evgrid">
-      <div class="bet"><strong>HIGH</strong><span class="ev" id="evHigh">—</span><div class="money"><label>賭け金<input id="stakeHigh" type="number" inputmode="decimal" min="0" step="0.01" value="100"></label><label>当選金<input id="returnHigh" type="number" inputmode="decimal" min="0" step="0.01" value="200"></label></div><div class="mult">自動倍率 <b id="mHigh">2.00倍</b></div></div>
-      <div class="bet"><strong>LOW</strong><span class="ev" id="evLow">—</span><div class="money"><label>賭け金<input id="stakeLow" type="number" inputmode="decimal" min="0" step="0.01" value="100"></label><label>当選金<input id="returnLow" type="number" inputmode="decimal" min="0" step="0.01" value="200"></label></div><div class="mult">自動倍率 <b id="mLow">2.00倍</b></div></div>
+      <div class="bet"><strong id="betHighLabel">HIGH＋同値</strong><span class="ev" id="evHigh">—</span><div class="money"><label><span id="returnHighLabel">HIGH＋同値</span> 当選金<input id="returnHigh" type="number" inputmode="decimal" min="0" step="0.01" value="200"></label></div><div class="mult">自動倍率 <b id="mHigh">2.00倍</b></div></div>
+      <div class="bet"><strong id="betLowLabel">LOW＋同値</strong><span class="ev" id="evLow">—</span><div class="money"><label><span id="returnLowLabel">LOW＋同値</span> 当選金<input id="returnLow" type="number" inputmode="decimal" min="0" step="0.01" value="200"></label></div><div class="mult">自動倍率 <b id="mLow">2.00倍</b></div></div>
     </div>
     <div class="decision" id="decision">現在カードを入力してください</div>
   </section>
   <section class="panel"><label>出たカードを順番にタップ</label><div class="history" id="history">履歴なし</div><div class="keys" id="keys"></div><div class="row actions" style="margin-top:10px"><button id="undo">1つ戻す</button><button id="reset">リセット</button></div></section>
-  <section class="panel note"><b class="warn">計算方法</b><br>無限デッキとして各ランクを常に1/13で計算します。過去に出たカードは確率へ影響しません。同値はHIGH／LOWどちらでも勝ちとして勝率に加算します。倍率＝当選金（賭け金込みの払戻し総額）÷賭け金。EVは1単位賭けたときの純期待利益です。</section>
+  <section class="panel note"><b class="warn">正確な計算方法</b><br>First Person Hi-Loのルールどおり、次のカードは毎回新しい52枚デッキから配られるものとして計算します。順位は2が最低、Aが最高。3〜Kでは同値をHIGH／LOW両方の勝率に含めます。2では「HIGH／同値」、Aでは「LOW／同値」が別の選択肢です。倍率＝当選金（賭け金込みの払戻し総額）÷賭け金。EV＝的中率×倍率−1。</section>
 </main><script>
-const ranks=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const ranks=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
 const $=id=>document.getElementById(id);let history=[];
 function fmt(x){return Number.isFinite(x)?(x*100).toFixed(2)+'%':'—'}
 function render(){
  const cur=history.at(-1);$('seen').textContent=history.length;$('current').textContent=cur==null?'—':ranks[cur];$('history').textContent=history.length?history.map(i=>ranks[i]).join(' → '):'履歴なし';
- if(cur==null){['pHigh','pLow','pTie','evHigh','evLow'].forEach(id=>$(id).textContent='—');$('decision').textContent='現在カードを入力してください';$('decision').className='decision';return}
- const ph=(12-cur)/13,pl=cur/13,pt=1/13;
- $('pHigh').textContent=fmt(ph);$('pLow').textContent=fmt(pl);$('pTie').textContent=fmt(pt);
- const multiplier=side=>{const stake=Number($('stake'+side).value),payout=Number($('return'+side).value);return stake>0&&payout>=0?payout/stake:NaN};
+ if(cur==null){['pHigh','pLow','pTie','evHigh','evLow','nHigh','nLow'].forEach(id=>$(id).textContent='—');$('decision').textContent='現在カードを入力してください';$('decision').className='decision';return}
+ const pt=1/13,highOnly=(12-cur)/13,lowOnly=cur/13;
+ const highLabel=cur===0?'HIGH':cur===12?'同値':'HIGH＋同値',lowLabel=cur===0?'同値':cur===12?'LOW':'LOW＋同値';
+ const winHigh=cur===0?highOnly:cur===12?pt:highOnly+pt,winLow=cur===0?pt:cur===12?lowOnly:lowOnly+pt;
+ ['highOption','betHighLabel','returnHighLabel'].forEach(id=>$(id).textContent=highLabel);['lowOption','betLowLabel','returnLowLabel'].forEach(id=>$(id).textContent=lowLabel);
+ $('pHigh').textContent=fmt(winHigh);$('pLow').textContent=fmt(winLow);$('pTie').textContent=fmt(pt);$('nHigh').textContent=Math.round(winHigh*52)+'/52';$('nLow').textContent=Math.round(winLow*52)+'/52';
+ const multiplier=side=>{const stake=Number($('stake').value),payout=Number($('return'+side).value);return stake>0&&payout>=0?payout/stake:NaN};
  const mh=multiplier('High'),ml=multiplier('Low');$('mHigh').textContent=Number.isFinite(mh)?mh.toFixed(2)+'倍':'—';$('mLow').textContent=Number.isFinite(ml)?ml.toFixed(2)+'倍':'—';
  if(!Number.isFinite(mh)||!Number.isFinite(ml)){['evHigh','evLow'].forEach(id=>$(id).textContent='—');$('decision').textContent='賭け金と当選金を入力してください';$('decision').className='decision';return}
- const ev=(p,m)=>(p+pt)*m-1,eh=ev(ph,mh),el=ev(pl,ml);
+ const ev=(p,m)=>p*m-1,eh=ev(winHigh,mh),el=ev(winLow,ml);
  [['evHigh',eh],['evLow',el]].forEach(([id,v])=>{$(id).textContent=(v>=0?'+':'')+(v*100).toFixed(2)+'%';$(id).className='ev '+(v>0?'positive':'negative')});
- const d=$('decision');if(Math.max(eh,el)>0){d.textContent=(eh>=el?'HIGH':'LOW')+'｜プラス期待値';d.className='decision good'}else{d.textContent='見送り｜プラス期待値なし';d.className='decision'}
- localStorage.setItem('hilo-state',JSON.stringify({history,stakeHigh:$('stakeHigh').value,returnHigh:$('returnHigh').value,stakeLow:$('stakeLow').value,returnLow:$('returnLow').value}));
+ const d=$('decision');if(Math.max(eh,el)>0){d.textContent=(eh>=el?highLabel:lowLabel)+'｜プラス期待値';d.className='decision good'}else{d.textContent='見送り｜プラス期待値なし';d.className='decision'}
+ localStorage.setItem('hilo-state',JSON.stringify({rankOrderVersion:2,history,stake:$('stake').value,returnHigh:$('returnHigh').value,returnLow:$('returnLow').value}));
 }
 ranks.forEach((r,i)=>{const b=document.createElement('button');b.textContent=r;b.onclick=()=>{history.push(i);render()};$('keys').appendChild(b)});
-$('undo').onclick=()=>{history.pop();render()};$('reset').onclick=()=>{if(confirm('すべての入力履歴を消しますか？')){history=[];render()}};['stakeHigh','returnHigh','stakeLow','returnLow'].forEach(id=>$(id).oninput=render);
-try{const s=JSON.parse(localStorage.getItem('hilo-state'));if(s){history=s.history||[];['stakeHigh','returnHigh','stakeLow','returnLow'].forEach(id=>{if(s[id]!=null)$(id).value=s[id]})}}catch{}render();
+$('undo').onclick=()=>{history.pop();render()};$('reset').onclick=()=>{if(confirm('すべての入力履歴を消しますか？')){history=[];render()}};['stake','returnHigh','returnLow'].forEach(id=>$(id).oninput=render);
+try{const s=JSON.parse(localStorage.getItem('hilo-state'));if(s){history=s.rankOrderVersion===2?(s.history||[]):(s.history||[]).map(i=>i===0?12:i-1).filter(i=>i>=0&&i<13);if(s.stake!=null)$('stake').value=s.stake;else if(s.stakeHigh!=null)$('stake').value=s.stakeHigh;['returnHigh','returnLow'].forEach(id=>{if(s[id]!=null)$(id).value=s[id]})}}catch{}render();
 if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js');
 </script></body></html>
