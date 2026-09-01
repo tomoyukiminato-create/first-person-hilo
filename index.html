@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <meta name="theme-color" content="#07111f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Hi-Lo v4" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+  <title>First Person Hi-Lo v4</title>
+  <style>
+    :root{
+      color-scheme:dark;
+      --bg:#050913;
+      --panel:#0d1526;
+      --panel2:#111c31;
+      --line:#22314e;
+      --text:#f5f7fb;
+      --muted:#91a0b9;
+      --blue:#5bbcff;
+      --purple:#b48cff;
+      --green:#56e39f;
+      --red:#ff718b;
+      --gold:#ffd765;
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    body{
+      min-height:100vh;
+      background:
+        radial-gradient(760px 420px at 50% -120px,#173a704f,transparent 70%),
+        linear-gradient(180deg,#06101d 0%,#050913 70%);
+      padding:calc(8px + env(safe-area-inset-top)) 10px calc(18px + env(safe-area-inset-bottom));
+    }
+    button,input{font:inherit}
+    button{touch-action:manipulation}
+    .app{width:min(760px,100%);margin:0 auto}
+    .topbar{
+      display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+      padding:8px 4px 10px;
+    }
+    h1{font-size:20px;line-height:1.15;margin:0;font-weight:900;letter-spacing:.1px}
+    .subtitle{margin-top:5px;color:var(--muted);font-size:11px;line-height:1.4}
+    .badge{
+      flex:0 0 auto;padding:7px 10px;border:1px solid #31507e;border-radius:999px;
+      background:#10213b;color:#c8e7ff;font-size:11px;font-weight:800
+    }
+    .panel{
+      background:linear-gradient(180deg,#0f182a,#0b1322);
+      border:1px solid var(--line);border-radius:18px;padding:12px;margin:8px 0;
+      box-shadow:0 12px 26px #0005;
+    }
+    .section-title{font-size:11px;color:var(--muted);font-weight:800;letter-spacing:.45px;text-transform:uppercase}
+    .rank-grid{
+      display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin-top:10px
+    }
+    .rank-btn{
+      min-height:48px;border-radius:12px;border:1px solid #2a3854;
+      background:#111a2b;color:#f7f9fc;font-size:16px;font-weight:900;
+      box-shadow:inset 0 -2px 0 #0004;
+    }
+    .rank-btn.active{
+      border-color:#70c8ff;background:linear-gradient(180deg,#1d5283,#183e66);
+      box-shadow:0 0 0 2px #56bfff33,inset 0 -2px 0 #0003;
+    }
+    .summary{
+      display:grid;grid-template-columns:92px 1fr;gap:12px;align-items:stretch
+    }
+    .playing-card{
+      min-height:124px;border-radius:16px;background:#f8fafc;color:#0d1424;
+      display:grid;place-items:center;font-size:46px;font-weight:950;
+      box-shadow:0 8px 20px #0006;
+    }
+    .side-stack{display:grid;grid-template-rows:1fr 1fr;gap:8px}
+    .side{
+      border:1px solid var(--line);border-radius:15px;padding:10px 11px;
+      display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center;
+      background:#10192b;
+    }
+    .side.best{border-color:#4de39a99;box-shadow:inset 0 0 0 1px #4de39a30}
+    .side .name{font-size:13px;font-weight:900}
+    .side.low .name{color:#d7c2ff}.side.high .name{color:#b9e6ff}
+    .prob{font-size:23px;font-weight:950;text-align:right}
+    .mini{font-size:11px;color:var(--muted)}
+    .mult{font-size:12px;color:var(--gold);font-weight:850;text-align:right}
+    .modebar{
+      display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px
+    }
+    .mode{
+      border:1px solid var(--line);background:#111a2b;color:#afbdd3;border-radius:11px;
+      padding:9px 8px;font-size:11px;font-weight:850;
+    }
+    .mode.active{background:#1b3152;color:#e5f4ff;border-color:#4c76ab}
+    .ev-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+    .evbox{background:#0a1120;border:1px solid var(--line);border-radius:14px;padding:10px}
+    .evbox label{display:block;color:var(--muted);font-size:10px;font-weight:800;margin-bottom:6px}
+    .evbox input{
+      width:100%;border:1px solid #2b3a56;background:#10192b;color:#fff;border-radius:10px;
+      padding:10px 9px;font-size:17px;font-weight:800;outline:none
+    }
+    .evbox input:focus{border-color:#62bfff}
+    .evresult{font-size:18px;font-weight:950;margin-top:7px}
+    .positive{color:var(--green)}.negative{color:var(--red)}.neutral{color:var(--muted)}
+    .recommend{
+      margin-top:10px;border-radius:13px;padding:10px 11px;background:#0b1425;
+      border:1px dashed #33435f;font-size:12px;line-height:1.5
+    }
+    .history-head{display:flex;justify-content:space-between;gap:10px;align-items:center}
+    .history{display:flex;gap:6px;overflow-x:auto;padding:9px 1px 2px;min-height:48px;scrollbar-width:none}
+    .history::-webkit-scrollbar{display:none}
+    .hist{
+      flex:0 0 34px;height:42px;border-radius:9px;background:#f8fafc;color:#101827;
+      display:grid;place-items:center;font-size:13px;font-weight:950
+    }
+    .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+    .action{
+      border:1px solid var(--line);border-radius:12px;padding:10px;background:#131d30;
+      color:#eef4ff;font-size:12px;font-weight:850
+    }
+    .action.danger{background:#2a1420;color:#ffd7df;border-color:#552334}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}
+    .stat{padding:8px;background:#0a1120;border:1px solid var(--line);border-radius:11px;text-align:center}
+    .stat b{display:block;font-size:15px;margin-top:2px}.stat span{font-size:9px;color:var(--muted)}
+    .install{
+      display:none;width:100%;margin-top:9px;border:none;border-radius:12px;padding:11px;
+      background:#2563eb;color:white;font-size:13px;font-weight:900
+    }
+    .note{font-size:10.5px;line-height:1.55;color:var(--muted)}
+    footer{padding:6px 4px 18px;color:#66758f;font-size:9.5px;line-height:1.5}
+    @media (max-width:390px){
+      .rank-grid{gap:5px}.rank-btn{min-height:45px;font-size:15px}
+      .summary{grid-template-columns:82px 1fr;gap:9px}.playing-card{min-height:118px;font-size:42px}
+      .side{padding:9px}.prob{font-size:21px}
+    }
+  </style>
+</head>
+<body>
+<main class="app">
+  <div class="topbar">
+    <div>
+      <h1>First Person Hi-Lo v4</h1>
+      <div class="subtitle">13枚ワンタップ入力 / Fresh Deck確率 / 実倍率EV</div>
+    </div>
+    <div class="badge">PWA</div>
+  </div>
+
+  <section class="panel">
+    <div class="section-title">現在カードを1タップ</div>
+    <div class="rank-grid" id="rankGrid"></div>
+  </section>
+
+  <section class="panel">
+    <div class="summary">
+      <div class="playing-card" id="cardFace">8</div>
+      <div class="side-stack">
+        <div class="side low" id="lowSide">
+          <div>
+            <div class="name" id="lowName">LOWER or SAME</div>
+            <div class="mini" id="lowCount">7 / 13 ranks</div>
+          </div>
+          <div>
+            <div class="prob" id="lowProb">53.85%</div>
+            <div class="mult" id="lowTheo">1.8386x</div>
+          </div>
+        </div>
+        <div class="side high" id="highSide">
+          <div>
+            <div class="name" id="highName">HIGHER or SAME</div>
+            <div class="mini" id="highCount">7 / 13 ranks</div>
+          </div>
+          <div>
+            <div class="prob" id="highProb">53.85%</div>
+            <div class="mult" id="highTheo">1.8386x</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modebar">
+      <button class="mode active" data-mode="first">最初の予想：RTP 99%</button>
+      <button class="mode" data-mode="later">成功後：RTP 100%</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="section-title">ゲーム画面の実倍率を入力</div>
+    <div class="ev-grid">
+      <div class="evbox">
+        <label id="lowInputLabel">LOW側倍率</label>
+        <input id="lowOdds" inputmode="decimal" placeholder="例 1.84" autocomplete="off" />
+        <div class="evresult neutral" id="lowEV">EV —</div>
+      </div>
+      <div class="evbox">
+        <label id="highInputLabel">HIGH側倍率</label>
+        <input id="highOdds" inputmode="decimal" placeholder="例 1.84" autocomplete="off" />
+        <div class="evresult neutral" id="highEV">EV —</div>
+      </div>
+    </div>
+    <div class="recommend" id="recommend">倍率を入力すると、表示倍率ベースのEVを比較します。</div>
+  </section>
+
+  <section class="panel">
+    <div class="history-head">
+      <div>
+        <div class="section-title">履歴</div>
+        <div class="note">カードボタンを押すと自動記録。確率補正には使用しません。</div>
+      </div>
+      <div class="badge" id="histCount">0枚</div>
+    </div>
+    <div class="history" id="history"></div>
+
+    <div class="stats">
+      <div class="stat"><span>平均ランク</span><b id="avgRank">—</b></div>
+      <div class="stat"><span>LOW側回数</span><b id="lowFav">0</b></div>
+      <div class="stat"><span>HIGH側回数</span><b id="highFav">0</b></div>
+    </div>
+
+    <div class="actions">
+      <button class="action" id="undoBtn">1枚戻す</button>
+      <button class="action danger" id="resetBtn">履歴リセット</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="section-title">ホーム画面に追加</div>
+    <div class="note" style="margin-top:6px">
+      iPhoneはSafariの共有ボタン →「ホーム画面に追加」。Android/Chromeでは対応時にインストールボタンが表示されます。
+    </div>
+    <button class="install" id="installBtn">アプリをインストール</button>
+  </section>
+
+  <footer>
+    このツールは計算・記録用です。各予想を新しい52枚デッキ（各ランク4枚）からの抽選として計算し、履歴によるカードカウンティング補正は行いません。賭けの結果や利益を保証するものではありません。
+  </footer>
+</main>
+
+<script>
+(() => {
+  const RANKS = [
+    {v:2,t:'2'},{v:3,t:'3'},{v:4,t:'4'},{v:5,t:'5'},{v:6,t:'6'},{v:7,t:'7'},
+    {v:8,t:'8'},{v:9,t:'9'},{v:10,t:'10'},{v:11,t:'J'},{v:12,t:'Q'},{v:13,t:'K'},{v:14,t:'A'}
+  ];
+  const $ = (id) => document.getElementById(id);
+  const persisted = JSON.parse(localStorage.getItem('hilo-v4-state') || '{}');
+  const state = {
+    rank: Number(persisted.rank) || 8,
+    mode: persisted.mode === 'later' ? 'later' : 'first',
+    history: Array.isArray(persisted.history) ? persisted.history : []
+  };
+
+  function save(){
+    localStorage.setItem('hilo-v4-state', JSON.stringify(state));
+  }
+
+  function labelFor(v){
+    return RANKS.find(r => r.v === v)?.t || String(v);
+  }
+
+  function probability(v){
+    if (v === 2) {
+      return { low:1/13, high:12/13, lowName:'SAME', highName:'HIGHER', lowCount:1, highCount:12 };
+    }
+    if (v === 14) {
+      return { low:12/13, high:1/13, lowName:'LOWER', highName:'SAME', lowCount:12, highCount:1 };
+    }
+    const lowCount = v - 1;      // 2..current, inclusive
+    const highCount = 15 - v;    // current..A, inclusive
+    return {
+      low: lowCount/13,
+      high: highCount/13,
+      lowName:'LOWER or SAME',
+      highName:'HIGHER or SAME',
+      lowCount, highCount
+    };
+  }
+
+  function theoreticalMultiplier(p){
+    const rtp = state.mode === 'first' ? 0.99 : 1.00;
+    return rtp / p;
+  }
+
+  function fmtPct(p){ return (p * 100).toFixed(2) + '%'; }
+  function fmtX(x){ return x.toFixed(4) + 'x'; }
+
+  function parseOdds(value){
+    const n = Number(String(value).replace(',','.').trim());
+    return Number.isFinite(n) && n > 0 ? n : null;
+  }
+
+  function calcEV(p, odds){
+    return odds == null ? null : p * odds - 1;
+  }
+
+  function setEV(el, ev){
+    if (ev == null) {
+      el.textContent = 'EV —';
+      el.className = 'evresult neutral';
+      return;
+    }
+    el.textContent = `EV ${ev >= 0 ? '+' : ''}${(ev*100).toFixed(2)}%`;
+    el.className = 'evresult ' + (ev > 0 ? 'positive' : ev < 0 ? 'negative' : 'neutral');
+  }
+
+  function updateOdds(){
+    const p = probability(state.rank);
+    const lo = calcEV(p.low, parseOdds($('lowOdds').value));
+    const hi = calcEV(p.high, parseOdds($('highOdds').value));
+    setEV($('lowEV'), lo);
+    setEV($('highEV'), hi);
+
+    const rec = $('recommend');
+    if (lo == null && hi == null) {
+      rec.textContent = '倍率を入力すると、表示倍率ベースのEVを比較します。';
+      return;
+    }
+    if (lo != null && hi != null) {
+      if (Math.abs(lo-hi) < 0.00005) {
+        rec.textContent = `実倍率EVはほぼ同じです（${(lo*100).toFixed(2)}%）。`;
+      } else if (lo > hi) {
+        rec.textContent = `入力倍率では LOW側のEVが ${((lo-hi)*100).toFixed(2)}pt 高いです。`;
+      } else {
+        rec.textContent = `入力倍率では HIGH側のEVが ${((hi-lo)*100).toFixed(2)}pt 高いです。`;
+      }
+      return;
+    }
+    const only = lo != null ? ['LOW',lo] : ['HIGH',hi];
+    rec.textContent = `${only[0]}側の入力倍率EVは ${only[1] >= 0 ? '+' : ''}${(only[1]*100).toFixed(2)}% です。`;
+  }
+
+  function renderMain(){
+    const p = probability(state.rank);
+    $('cardFace').textContent = labelFor(state.rank);
+    $('lowName').textContent = p.lowName;
+    $('highName').textContent = p.highName;
+    $('lowCount').textContent = `${p.lowCount} / 13 ranks`;
+    $('highCount').textContent = `${p.highCount} / 13 ranks`;
+    $('lowProb').textContent = fmtPct(p.low);
+    $('highProb').textContent = fmtPct(p.high);
+    $('lowTheo').textContent = fmtX(theoreticalMultiplier(p.low));
+    $('highTheo').textContent = fmtX(theoreticalMultiplier(p.high));
+    $('lowInputLabel').textContent = `${p.lowName} 実倍率`;
+    $('highInputLabel').textContent = `${p.highName} 実倍率`;
+
+    $('lowSide').classList.toggle('best', p.low > p.high);
+    $('highSide').classList.toggle('best', p.high > p.low);
+
+    document.querySelectorAll('.rank-btn').forEach(btn => {
+      btn.classList.toggle('active', Number(btn.dataset.rank) === state.rank);
+    });
+    document.querySelectorAll('.mode').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.mode === state.mode);
+    });
+
+    updateOdds();
+  }
+
+  function renderHistory(){
+    const el = $('history');
+    el.innerHTML = '';
+    if (!state.history.length) {
+      el.innerHTML = '<span class="note">まだ履歴はありません</span>';
+    } else {
+      state.history.slice(-40).forEach(v => {
+        const d = document.createElement('div');
+        d.className = 'hist';
+        d.textContent = labelFor(v);
+        el.appendChild(d);
+      });
+      requestAnimationFrame(() => el.scrollLeft = el.scrollWidth);
+    }
+    $('histCount').textContent = `${state.history.length}枚`;
+
+    if (!state.history.length) {
+      $('avgRank').textContent = '—';
+      $('lowFav').textContent = '0';
+      $('highFav').textContent = '0';
+      return;
+    }
+    const avg = state.history.reduce((a,b)=>a+b,0) / state.history.length;
+    $('avgRank').textContent = avg.toFixed(2);
+    let lowFav = 0, highFav = 0;
+    state.history.forEach(v => {
+      const p = probability(v);
+      if (p.low > p.high) lowFav++;
+      if (p.high > p.low) highFav++;
+    });
+    $('lowFav').textContent = String(lowFav);
+    $('highFav').textContent = String(highFav);
+  }
+
+  function selectRank(v, record=true){
+    state.rank = v;
+    if (record) state.history.push(v);
+    save();
+    renderMain();
+    renderHistory();
+  }
+
+  const grid = $('rankGrid');
+  RANKS.forEach(({v,t}) => {
+    const b = document.createElement('button');
+    b.className = 'rank-btn';
+    b.dataset.rank = String(v);
+    b.textContent = t;
+    b.addEventListener('click', () => selectRank(v, true));
+    grid.appendChild(b);
+  });
+
+  document.querySelectorAll('.mode').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.mode = btn.dataset.mode;
+      save();
+      renderMain();
+    });
+  });
+
+  $('lowOdds').addEventListener('input', updateOdds);
+  $('highOdds').addEventListener('input', updateOdds);
+
+  $('undoBtn').addEventListener('click', () => {
+    if (!state.history.length) return;
+    state.history.pop();
+    if (state.history.length) state.rank = state.history[state.history.length-1];
+    save();
+    renderMain();
+    renderHistory();
+  });
+
+  $('resetBtn').addEventListener('click', () => {
+    state.history = [];
+    save();
+    renderHistory();
+  });
+
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    $('installBtn').style.display = 'block';
+  });
+
+  $('installBtn').addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    $('installBtn').style.display = 'none';
+  });
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
+  }
+
+  renderMain();
+  renderHistory();
+})();
+</script>
+</body>
+</html>
