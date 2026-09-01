@@ -14,7 +14,7 @@
   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
   <link rel="icon" href="./icon-192.png" sizes="192x192">
   <link rel="icon" href="./icon-512.png" sizes="512x512">
-  <title>First Person HiLo - Approx Formula</title>
+  <title>First Person HiLo - Exact Probability</title>
   <style>
     :root{
       --bg:#03080d;--panel:#08131e;--panel2:#0b1826;--line:#344253;
@@ -46,7 +46,6 @@
     .field label{display:block;text-align:center;font-size:13px;font-weight:750;margin-bottom:7px}
     .field input{width:100%;height:54px;border:1px solid #40526a;border-radius:9px;background:#08131f;color:white;text-align:center;font-size:23px;font-weight:800;outline:none}
     .field input:focus{border-color:#6ca4ff;box-shadow:0 0 0 2px rgba(47,128,255,.18)}
-    .field select{outline:none}.field select:focus{border-color:#6ca4ff!important;box-shadow:0 0 0 2px rgba(47,128,255,.18)}
     .arrow{text-align:center;font-size:30px;margin:4px 0}
     .mults{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:12px}
     .mult{border:1px solid;border-radius:10px;padding:11px;text-align:center}
@@ -139,60 +138,30 @@
         <div class="mult low"><div class="lab lowtxt">LOW倍率</div><span id="lowMult" class="val lowtxt">1.32</span>倍</div>
         <div class="mult high"><div class="lab hightxt">HIGH倍率</div><span id="highMult" class="val hightxt">1.86</span>倍</div>
       </div>
-      <div class="formula">※ 倍率 = 払戻し総額 ÷ 賭け金</div><div class="formula">※ 近似式：HIGH = (14 − ランク) ÷ 13 / LOW = (ランク − 1) ÷ 13</div>
-      <div style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px">
-        <div class="title" style="font-size:15px;margin-bottom:9px">端数処理</div>
-        <div class="grid2">
-          <div class="field">
-            <label>倍率の表示桁数</label>
-            <select id="oddsDigits" style="width:100%;height:48px;border:1px solid #40526a;border-radius:9px;background:#08131f;color:white;text-align:center;font-size:16px">
-              <option value="2" selected>小数2桁</option>
-              <option value="3">小数3桁</option>
-              <option value="4">小数4桁</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>払戻し額の端数</label>
-            <select id="roundMode" style="width:100%;height:48px;border:1px solid #40526a;border-radius:9px;background:#08131f;color:white;text-align:center;font-size:16px">
-              <option value="floor" selected>切り捨て</option>
-              <option value="round">四捨五入</option>
-              <option value="ceil">切り上げ</option>
-            </select>
-          </div>
-        </div>
-        <div class="field" style="margin-top:10px">
-          <label>通貨の最小単位</label>
-          <select id="moneyUnit" style="width:100%;height:48px;border:1px solid #40526a;border-radius:9px;background:#08131f;color:white;text-align:center;font-size:16px">
-            <option value="1" selected>1（円など）</option>
-            <option value="0.1">0.1</option>
-            <option value="0.01">0.01（セント等）</option>
-          </select>
-        </div>
-        <div id="roundingPreview" class="formula" style="margin-top:10px">内部計算値は丸めず、表示・払戻しだけ端数処理します。</div>
-      </div>
+      <div class="formula">※ 倍率 = 払戻し総額 ÷ 賭け金</div><div class="formula">※ 通常は Lower or Same / Higher or Same。2は Same / Higher、Aは Lower / Same。</div><div class="formula">例：7 → Lower or Same = 24/52 = 46.153846…% / Higher or Same = 32/52 = 61.538461…%</div>
     </div>
 
     <div class="result-title">③ 判定結果（EV = 的中確率 × 払戻し倍率）</div>
     <div id="result" class="result high">
       <div class="small">おすすめ</div>
-      <div id="decision" class="choice">HIGH</div>
+      <div id="decision" class="choice">HIGHER OR SAME</div>
       <div class="push">を押してください！</div>
     </div>
 
     <div class="stats">
       <div class="stat low">
-        <div id="lowHead" class="head lowtxt">LOW</div>
-        <div class="body"><div>的中確率</div><div id="lowProb" class="prob lowtxt">46.15%</div><div>EV</div><div id="lowEV" class="ev lowtxt">0.6092</div></div>
+        <div id="lowHead" class="head lowtxt">LOWER OR SAME</div>
+        <div class="body"><div>的中確率</div><div id="lowProb" class="prob lowtxt">46.1538%</div><div id="lowCount" class="formula">24 / 52枚</div><div>EV</div><div id="lowEV" class="ev lowtxt">0.609231</div></div>
       </div>
       <div class="stat high">
-        <div id="highHead" class="head hightxt">HIGH</div>
-        <div class="body"><div>的中確率</div><div id="highProb" class="prob hightxt">53.85%</div><div>EV</div><div id="highEV" class="ev hightxt">1.0015</div></div>
+        <div id="highHead" class="head hightxt">HIGHER OR SAME</div>
+        <div class="body"><div>的中確率</div><div id="highProb" class="prob hightxt">61.5385%</div><div id="highCount" class="formula">32 / 52枚</div><div>EV</div><div id="highEV" class="ev hightxt">1.144615</div></div>
       </div>
     </div>
 
     <button id="saveBtn" class="save" type="button">この判定を履歴に保存</button>
     <button id="resetBtn" class="reset" type="button">↻ リセット</button>
-    <div class="note">的中確率は近似式で計算し、EVは丸め前の内部値で比較します。倍率表示と払戻し額だけ指定した端数処理を適用します。</div>
+    <div class="note">的中確率は有利なカード枚数÷52で計算します。毎回新しい52枚デッキなので過去カードは減算しません。EVは入力された倍率をそのまま使って計算します。結果や利益を保証するものではありません。</div>
   </section>
 
   <section id="history" class="screen">
@@ -233,10 +202,8 @@
       <p>現在表示されているカードを2〜Aから選択します。</p>
       <h3>② 倍率を入力</h3>
       <p>倍率を直接入力するか、賭け金とLOW/HIGHそれぞれの払戻し総額から倍率を自動計算します。</p>
-      <h3>端数処理</h3>
-      <p>倍率は内部では丸めず保持し、画面表示のみ2〜4桁で丸めます。払戻し額は「切り捨て／四捨五入／切り上げ」と通貨の最小単位を選択できます。EV判定は端数処理による表示誤差を避けるため丸め前の倍率で比較します。</p>
       <h3>③ 判定を見る</h3>
-      <p>近似式で算出したHIGH/LOWの確率からEVを比較し、高い側を中央に表示します。</p>
+      <p>ゲーム画面の2つの選択肢を、毎回新しい52枚デッキ（各ランク4枚）として枚数から計算します。通常はLower or Same / Higher or Same、2はSame / Higher、AはLower / Sameです。</p>
       <div class="install"><strong>iPhoneのホーム画面に追加</strong><br>SafariでこのPWAを開く → 共有ボタン →「ホーム画面に追加」→「追加」。以後はホーム画面のHiLoアイコンから起動できます。</div>
     </div>
   </section>
@@ -251,7 +218,7 @@
 
 <script>
 (()=>{
-  const ranks=[['2',2],['3',3],['4',4],['5',5],['6',6],['7',7],['8',8],['9',9],['10',10],['J',11],['Q',12],['K',13],['A',1]];
+  const ranks=[['2',2],['3',3],['4',4],['5',5],['6',6],['7',7],['8',8],['9',9],['10',10],['J',11],['Q',12],['K',13],['A',14]];
   let selected={label:'7',value:7};
   let mode='money';
   let lastCalc=null;
@@ -265,17 +232,49 @@
     return Number.isFinite(n)&&n>=0?n:null;
   }
   function probs(v){
-    // Approximation model:
-    // A=1, 2=2, ... K=13
-    // HIGH = (14 - rank) / 13
-    // LOW  = (rank - 1) / 13
-    const high=(14-v)/13;
-    const low=(v-1)/13;
+    // Evolution First Person HiLo:
+    // A fresh 52-card deck is used for every new card.
+    // Each rank has 4 cards.
+    if(v===2){
+      const lowWins=4;      // Same: four 2s
+      const highWins=48;    // Higher: 3 through Ace
+      return {
+        low:lowWins/52,
+        high:highWins/52,
+        lowWins,
+        highWins,
+        lowLabel:'SAME (2)',
+        highLabel:'HIGHER (3以上)'
+      };
+    }
+    if(v===14){
+      const lowWins=48;     // Lower: 2 through King
+      const highWins=4;     // Same: four Aces
+      return {
+        low:lowWins/52,
+        high:highWins/52,
+        lowWins,
+        highWins,
+        lowLabel:'LOWER (K以下)',
+        highLabel:'SAME (A)'
+      };
+    }
+
+    // 3 through King:
+    // Lower or Same includes ranks 2..current.
+    // Higher or Same includes current..Ace.
+    const lowRanks=v-1;
+    const highRanks=15-v;
+    const lowWins=lowRanks*4;
+    const highWins=highRanks*4;
+
     return {
-      low,
-      high,
-      lowLabel:'LOW',
-      highLabel:'HIGH'
+      low:lowWins/52,
+      high:highWins/52,
+      lowWins,
+      highWins,
+      lowLabel:'LOWER OR SAME (' + cardLabel(v) + '以下)',
+      highLabel:'HIGHER OR SAME (' + cardLabel(v) + '以上)'
     };
   }
 
@@ -287,35 +286,6 @@
     return String(v);
   }
   function pct(x){return (x*100).toFixed(4)+'%'}
-  function oddsDigits(){
-    const el=$('oddsDigits');
-    const n=el?Number(el.value):2;
-    return [2,3,4].includes(n)?n:2;
-  }
-  function displayOdds(x){
-    if(x===null||!Number.isFinite(x))return '—';
-    return x.toFixed(oddsDigits());
-  }
-  function moneyUnit(){
-    const el=$('moneyUnit');
-    const n=el?Number(el.value):1;
-    return [1,0.1,0.01].includes(n)?n:1;
-  }
-  function roundedMoney(x){
-    if(x===null||!Number.isFinite(x))return null;
-    const u=moneyUnit();
-    const q=x/u;
-    const mode=$('roundMode')?.value||'floor';
-    let v;
-    if(mode==='ceil')v=Math.ceil(q-1e-12);
-    else if(mode==='round')v=Math.round(q+1e-12);
-    else v=Math.floor(q+1e-12);
-    return v*u;
-  }
-  function moneyDecimals(){
-    const u=moneyUnit();
-    return u===1?0:(u===0.1?1:2);
-  }
   function moneyMult(id){
     const s=val('stake'),r=val(id);
     if(s===null||s<=0||r===null)return null;
@@ -341,21 +311,23 @@
     const p=probs(selected.value);
     const lm=getLowMult(),hm=getHighMult();
 
-    $('lowHead').textContent='LOW';
-    $('highHead').textContent='HIGH';
+    $('lowHead').textContent=p.lowLabel;
+    $('highHead').textContent=p.highLabel;
 
     const lowMultLabel = document.querySelector('.mult.low .lab');
     const highMultLabel = document.querySelector('.mult.high .lab');
     const lowReturnLabel = document.querySelector('label[for="lowReturn"]');
     const highReturnLabel = document.querySelector('label[for="highReturn"]');
 
-    if(lowMultLabel) lowMultLabel.textContent = 'LOW 倍率';
-    if(highMultLabel) highMultLabel.textContent = 'HIGH 倍率';
+    if(lowMultLabel) lowMultLabel.textContent = p.lowLabel + ' 倍率';
+    if(highMultLabel) highMultLabel.textContent = p.highLabel + ' 倍率';
 
-    $('lowMult').textContent=lm===null?'—':displayOdds(lm);
-    $('highMult').textContent=hm===null?'—':displayOdds(hm);
+    $('lowMult').textContent=lm===null?'—':String(lm);
+    $('highMult').textContent=hm===null?'—':String(hm);
     $('lowProb').textContent=pct(p.low);
     $('highProb').textContent=pct(p.high);
+    if($('lowCount')) $('lowCount').textContent=p.lowWins+' / 52枚';
+    if($('highCount')) $('highCount').textContent=p.highWins+' / 52枚';
 
     const lev=lm===null?null:p.low*lm;
     const hev=hm===null?null:p.high*hm;
@@ -365,31 +337,17 @@
     const box=$('result');
     box.classList.remove('low','high');
     let decision='入力待ち';
+    let decisionKey='WAIT';
     if(lev!==null&&hev!==null){
-      if(Math.abs(lev-hev)<0.000001) decision='同率';
-      else if(lev>hev){decision='LOW';box.classList.add('low')}
-      else {decision='HIGH';box.classList.add('high')}
+      if(Math.abs(lev-hev)<0.000001){ decision='同率'; decisionKey='TIE'; }
+      else if(lev>hev){decision=p.lowLabel;decisionKey='LOW';box.classList.add('low')}
+      else {decision=p.highLabel;decisionKey='HIGH';box.classList.add('high')}
     }
     $('decision').textContent=decision;
-    const stakeNow=val('stake');
-    if($('roundingPreview')){
-      if(stakeNow!==null && stakeNow>0 && lm!==null && hm!==null){
-        const lowRaw=stakeNow*lm, highRaw=stakeNow*hm;
-        const lowRounded=roundedMoney(lowRaw), highRounded=roundedMoney(highRaw);
-        const dec=moneyDecimals();
-        $('roundingPreview').textContent=
-          '払戻し例：LOW '+lowRaw.toFixed(4)+' → '+lowRounded.toFixed(dec)+
-          ' / HIGH '+highRaw.toFixed(4)+' → '+highRounded.toFixed(dec)+
-          '（判定EVは丸め前の倍率で比較）';
-      }else{
-        $('roundingPreview').textContent='内部計算値は丸めず、表示・払戻しだけ端数処理します。';
-      }
-    }
-    lastCalc={decision,lowEV:lev,highEV:hev,lowMult:lm,highMult:hm,card:selected.label};
+    lastCalc={decision,decisionKey,lowEV:lev,highEV:hev,lowMult:lm,highMult:hm,card:selected.label};
   }
 
   ['stake','lowReturn','highReturn','lowDirect','highDirect'].forEach(id=>$(id).addEventListener('input',render));
-  ['oddsDigits','roundMode','moneyUnit'].forEach(id=>$(id).addEventListener('change',render));
 
   $('directTab').addEventListener('click',()=>{
     mode='direct';$('directTab').classList.add('active');$('moneyTab').classList.remove('active');
@@ -406,7 +364,7 @@
   function writeHistory(arr){localStorage.setItem('hiloHistoryPhoto',JSON.stringify(arr.slice(0,200)))}
 
   $('saveBtn').addEventListener('click',()=>{
-    if(!lastCalc||!['LOW','HIGH'].includes(lastCalc.decision))return;
+    if(!lastCalc||!['LOW','HIGH'].includes(lastCalc.decisionKey))return;
     const arr=readHistory();
     arr.unshift({...lastCalc,time:Date.now()});
     writeHistory(arr);
@@ -436,12 +394,12 @@
   function renderStatistics(){
     const arr=readHistory();
     const total=arr.length;
-    const hc=arr.filter(x=>x.decision==='HIGH').length;
-    const lc=arr.filter(x=>x.decision==='LOW').length;
+    const hc=arr.filter(x=>x.decisionKey==='HIGH').length;
+    const lc=arr.filter(x=>x.decisionKey==='LOW').length;
     $('totalPlays').textContent=total;
     $('highRate').textContent=total?(hc/total*100).toFixed(1)+'%':'0%';
     $('lowRate').textContent=total?(lc/total*100).toFixed(1)+'%':'0%';
-    const evs=arr.map(x=>Number(x.decision==='LOW'?x.lowEV:x.highEV)).filter(Number.isFinite);
+    const evs=arr.map(x=>Number(x.decisionKey==='LOW'?x.lowEV:x.highEV)).filter(Number.isFinite);
     $('avgEV').textContent=evs.length?(evs.reduce((a,b)=>a+b,0)/evs.length).toFixed(3):'0.000';
     $('highLegend').textContent=hc+(total?' ('+(hc/total*100).toFixed(1)+'%)':'');
     $('lowLegend').textContent=lc+(total?' ('+(lc/total*100).toFixed(1)+'%)':'');
