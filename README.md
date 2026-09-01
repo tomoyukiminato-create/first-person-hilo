@@ -1,6 +1,15 @@
-FIRST PERSON HiLo PWA
+# First Person Hi-Lo Counter PWA
 
-的中確率はFirst Person HiLoのHigher or Same / Lower or Sameに合わせています。
-2,3,...,Aの13ランクを等確率とし、同じランクを含めます。
-現在カードが7ならHigher/Same=8/13=61.54%、Lower/Same=6/13=46.15%。
-期待値は入力倍率を使って P×倍率−1 としています。
+## 使い方
+1. このフォルダをHTTPS対応のWebサーバーに配置
+2. iPhoneのSafariで開く
+3. 共有 → ホーム画面に追加
+
+## ローカル確認
+PCで:
+python -m http.server 8080
+
+その後:
+http://localhost:8080/first-person-hilo-pwa/
+
+※ Service Workerは通常 localhost または HTTPS で有効です。
