@@ -191,6 +191,63 @@
     </div>
 
     <button id="saveBtn" class="save" type="button">この判定を履歴に保存</button>
+    
+    <div class="panel" style="margin-top:14px">
+      <div class="title">④ キャッシュアウト判定</div>
+
+      <div class="grid2">
+        <div class="field">
+          <label>開始資金</label>
+          <input id="startBankroll" type="number" inputmode="decimal" min="0" step="0.01" value="100">
+        </div>
+        <div class="field">
+          <label>現在資金</label>
+          <input id="currentBankroll" type="number" inputmode="decimal" min="0" step="0.01" value="100">
+        </div>
+      </div>
+
+      <div class="grid2" style="margin-top:10px">
+        <div class="field">
+          <label>利益目標 %</label>
+          <input id="profitTargetPct" type="number" inputmode="decimal" min="0" step="0.1" value="20">
+        </div>
+        <div class="field">
+          <label>損切り %</label>
+          <input id="stopLossPct" type="number" inputmode="decimal" min="0" max="100" step="0.1" value="20">
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:10px">
+        <label>続行に必要な最低EV</label>
+        <input id="minContinueEV" type="number" inputmode="decimal" min="0" step="0.001" value="1.000">
+      </div>
+
+      <div id="cashoutBox" class="result" style="margin-top:12px">
+        <div class="small">キャッシュアウト判定</div>
+        <div id="cashoutDecision" class="choice" style="font-size:46px">続行</div>
+        <div id="cashoutReason" class="push" style="font-size:15px">条件未達</div>
+      </div>
+
+      <div class="stats" style="margin-top:10px">
+        <div class="stat low">
+          <div class="head">損益</div>
+          <div class="body">
+            <div id="sessionProfit" class="prob">0.00</div>
+            <div id="sessionProfitPct">0.00%</div>
+          </div>
+        </div>
+        <div class="stat high">
+          <div class="head">最良EV</div>
+          <div class="body">
+            <div id="bestEV" class="prob">—</div>
+            <div id="bestSide">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="formula">判定順序：損切り → 利益目標 → 最良EVが最低EV未満 → 続行</div>
+    </div>
+
     <button id="resetBtn" class="reset" type="button">↻ リセット</button>
     <div class="note">的中確率とEVは丸め前の内部値で計算し、倍率表示と払戻し額だけ指定した端数処理を適用します。次のカードは毎回新しい52枚デッキから出る前提です。結果や利益を保証するものではありません。</div>
   </section>
@@ -235,6 +292,8 @@
       <p>倍率を直接入力するか、賭け金とLOW/HIGHそれぞれの払戻し総額から倍率を自動計算します。</p>
       <h3>端数処理</h3>
       <p>倍率は内部では丸めず保持し、画面表示のみ2〜4桁で丸めます。払戻し額は「切り捨て／四捨五入／切り上げ」と通貨の最小単位を選択できます。EV判定は端数処理による表示誤差を避けるため丸め前の倍率で比較します。</p>
+      <h3>キャッシュアウト判定</h3>
+      <p>開始資金・現在資金・利益目標・損切り・最低EVを設定すると、ルールに達した時点で「CASH OUT」と表示します。判定は損切りを最優先し、その次に利益目標、最後に最良EVが最低EVを下回ったかを確認します。</p>
       <h3>③ 判定を見る</h3>
       <p>ゲーム画面の2つの選択肢（通常はLower or Same / Higher or Same）のEVを比較し、高い側を中央に大きく表示します。2ではSame / Higher、AではLower / Sameになります。</p>
       <div class="install"><strong>iPhoneのホーム画面に追加</strong><br>SafariでこのPWAを開く → 共有ボタン →「ホーム画面に追加」→「追加」。以後はホーム画面のHiLoアイコンから起動できます。</div>
@@ -347,6 +406,78 @@
     cards.appendChild(b);
   });
 
+
+  function cashoutNumber(id){
+    const el=$(id);
+    if(!el)return null;
+    const raw=el.value.trim();
+    if(!raw)return null;
+    const n=Number(raw);
+    return Number.isFinite(n)&&n>=0?n:null;
+  }
+
+  function renderCashout(lev, hev){
+    const start=cashoutNumber('startBankroll');
+    const current=cashoutNumber('currentBankroll');
+    const target=cashoutNumber('profitTargetPct');
+    const stop=cashoutNumber('stopLossPct');
+    const minEV=cashoutNumber('minContinueEV');
+
+    const box=$('cashoutBox');
+    if(!box)return;
+
+    box.classList.remove('high','low');
+
+    if(start===null || start<=0 || current===null || target===null || stop===null || minEV===null){
+      $('cashoutDecision').textContent='入力確認';
+      $('cashoutReason').textContent='資金管理の数値を入力してください';
+      $('sessionProfit').textContent='—';
+      $('sessionProfitPct').textContent='—';
+      $('bestEV').textContent='—';
+      $('bestSide').textContent='—';
+      return;
+    }
+
+    const profit=current-start;
+    const profitPct=(profit/start)*100;
+    $('sessionProfit').textContent=profit.toFixed(2);
+    $('sessionProfitPct').textContent=profitPct.toFixed(2)+'%';
+
+    let best=null, side='—';
+    if(Number.isFinite(lev) && Number.isFinite(hev)){
+      if(lev>hev){best=lev;side='LOW';}
+      else if(hev>lev){best=hev;side='HIGH';}
+      else {best=lev;side='同率';}
+    }
+    $('bestEV').textContent=best===null?'—':best.toFixed(6);
+    $('bestSide').textContent=side;
+
+    let decision='続行';
+    let reason='条件未達';
+    let cash=false;
+
+    if(profitPct<=-stop){
+      decision='CASH OUT';
+      reason='損切りライン到達（'+profitPct.toFixed(2)+'%）';
+      cash=true;
+    }else if(profitPct>=target){
+      decision='CASH OUT';
+      reason='利益目標到達（+'+profitPct.toFixed(2)+'%）';
+      cash=true;
+    }else if(best!==null && best<minEV){
+      decision='CASH OUT';
+      reason='最良EV '+best.toFixed(6)+' < 最低EV '+minEV.toFixed(3);
+      cash=true;
+    }else if(best!==null){
+      reason='最良EV '+best.toFixed(6)+' / '+side+' を継続候補';
+    }
+
+    $('cashoutDecision').textContent=decision;
+    $('cashoutReason').textContent=reason;
+    if(cash) box.classList.add('low');
+    else box.classList.add('high');
+  }
+
   function render(){
     const p=probs(selected.value);
     const lm=getLowMult(),hm=getHighMult();
@@ -395,11 +526,15 @@
         $('roundingPreview').textContent='内部計算値は丸めず、表示・払戻しだけ端数処理します。';
       }
     }
+    renderCashout(lev,hev);
     lastCalc={decision,lowEV:lev,highEV:hev,lowMult:lm,highMult:hm,card:selected.label};
   }
 
   ['stake','lowReturn','highReturn','lowDirect','highDirect'].forEach(id=>$(id).addEventListener('input',render));
   ['oddsDigits','roundMode','moneyUnit'].forEach(id=>$(id).addEventListener('change',render));
+  ['startBankroll','currentBankroll','profitTargetPct','stopLossPct','minContinueEV'].forEach(id=>{
+    $(id).addEventListener('input',render);
+  });
 
   $('directTab').addEventListener('click',()=>{
     mode='direct';$('directTab').classList.add('active');$('moneyTab').classList.remove('active');
@@ -429,6 +564,11 @@
     cards.querySelectorAll('.rank').forEach(b=>b.classList.toggle('sel',b.textContent==='7'));
     $('stake').value='100';$('lowReturn').value='132';$('highReturn').value='186';
     $('lowDirect').value='1.32';$('highDirect').value='1.86';
+    $('startBankroll').value='100';
+    $('currentBankroll').value='100';
+    $('profitTargetPct').value='20';
+    $('stopLossPct').value='20';
+    $('minContinueEV').value='1.000';
     render();
   });
 
