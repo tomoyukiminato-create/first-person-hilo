@@ -14,7 +14,7 @@
   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
   <link rel="icon" href="./icon-192.png" sizes="192x192">
   <link rel="icon" href="./icon-512.png" sizes="512x512">
-  <title>First Person HiLo - Infinite Deck EV</title>
+  <title>First Person HiLo - Infinite Deck Dynamic Result</title>
   <style>
     :root{
       --bg:#03080d;--panel:#08131e;--panel2:#0b1826;--line:#344253;
@@ -95,6 +95,7 @@
     .nav button.active{color:var(--blue)}
     @media(max-width:390px){.cards{grid-template-columns:repeat(4,1fr)}.rank{height:50px}.choice{font-size:58px}.header h1{font-size:25px}}
   
+    .result.tie{border-color:#c8a951;background:linear-gradient(180deg,rgba(200,169,81,.14),rgba(200,169,81,.04))}
     .result.nobet{border-color:#9aa4b2;background:linear-gradient(180deg,rgba(154,164,178,.12),rgba(154,164,178,.04))}
   </style>
 </head>
@@ -151,7 +152,7 @@
     <div class="result-title">③ 判定結果（EV = 的中確率 × 払戻し倍率）</div>
     <div id="result" class="result high">
       <div class="small">おすすめ</div>
-      <div id="decision" class="choice">HIGHER OR SAME</div>
+      <div id="decision" class="choice">HIGHER OR SAME</div><div id="decisionReason" class="push" style="font-size:15px;margin-top:8px">計算結果に応じて自動判定</div>
       <div class="push">を押してください！</div>
     </div>
 
@@ -211,6 +212,8 @@
       <p>倍率を直接入力するか、賭け金とLOW/HIGHそれぞれの払戻し総額から倍率を自動計算します。</p>
       <h3>端数処理</h3>
       <p>倍率は内部では丸めず保持し、画面表示のみ2〜4桁で丸めます。払戻し額は「切り捨て／四捨五入／切り上げ」と通貨の最小単位を選択できます。EV判定は端数処理による表示誤差を避けるため丸め前の倍率で比較します。</p>
+      <h3>判定結果</h3>
+      <p>判定結果は入力値に応じてリアルタイムに変化します。両方がマイナス期待値ならNO BET、片方が高ければその側、同じなら同率と表示します。</p>
       <h3>期待値の見方</h3>
       <p>期待払戻し率が1.000000なら損益分岐です。期待純利益がプラスなら理論上プラス期待値、マイナスならマイナス期待値です。両方がマイナスの場合は「NO BET」と表示します。</p>
       <h3>③ 判定を見る</h3>
@@ -387,27 +390,70 @@
     box.classList.remove('low','high');
     let decision='入力待ち';
     let decisionKey='WAIT';
-    if(lowCalc!==null&&highCalc!==null){
+    let reason='倍率を入力してください';
+
+    box.classList.remove('high','low','nobet','tie');
+
+    if(lowCalc!==null && highCalc!==null){
       const lnet=lowCalc.expectedNet;
       const hnet=highCalc.expectedNet;
-      if(lnet<0 && hnet<0){
+      const eps=1e-12;
+
+      if(lnet < 0 && hnet < 0){
         decision='NO BET';
         decisionKey='NO_BET';
+        reason='両方とも期待純利益がマイナス';
         box.classList.add('nobet');
-      }else if(Math.abs(lnet-hnet)<1e-12){
+      }else if(Math.abs(lnet-hnet) < eps){
         decision='同率';
         decisionKey='TIE';
-      }else if(lnet>hnet){
+        reason='LOW側とHIGH側の期待値が同じ';
+        box.classList.add('tie');
+      }else if(lnet > hnet){
         decision=p.lowLabel;
         decisionKey='LOW';
+        reason=
+          'LOW側の期待純利益 '+(lnet>=0?'+':'')+lnet.toFixed(6)+
+          ' / HIGH側 '+(hnet>=0?'+':'')+hnet.toFixed(6);
         box.classList.add('low');
       }else{
         decision=p.highLabel;
         decisionKey='HIGH';
+        reason=
+          'HIGH側の期待純利益 '+(hnet>=0?'+':'')+hnet.toFixed(6)+
+          ' / LOW側 '+(lnet>=0?'+':'')+lnet.toFixed(6);
         box.classList.add('high');
       }
+    }else if(lowCalc!==null){
+      const lnet=lowCalc.expectedNet;
+      if(lnet>=0){
+        decision=p.lowLabel;
+        decisionKey='LOW';
+        reason='LOW側のみ有効入力 / 期待純利益 '+(lnet>=0?'+':'')+lnet.toFixed(6);
+        box.classList.add('low');
+      }else{
+        decision='NO BET';
+        decisionKey='NO_BET';
+        reason='LOW側の期待純利益がマイナス';
+        box.classList.add('nobet');
+      }
+    }else if(highCalc!==null){
+      const hnet=highCalc.expectedNet;
+      if(hnet>=0){
+        decision=p.highLabel;
+        decisionKey='HIGH';
+        reason='HIGH側のみ有効入力 / 期待純利益 '+(hnet>=0?'+':'')+hnet.toFixed(6);
+        box.classList.add('high');
+      }else{
+        decision='NO BET';
+        decisionKey='NO_BET';
+        reason='HIGH側の期待純利益がマイナス';
+        box.classList.add('nobet');
+      }
     }
+
     $('decision').textContent=decision;
+    if($('decisionReason')) $('decisionReason').textContent=reason;
     lastCalc={decision,decisionKey,lowEV:lev,highEV:hev,lowMult:lm,highMult:hm,card:selected.label};
   }
 
