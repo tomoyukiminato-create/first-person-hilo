@@ -86,3 +86,53 @@ dialog button{width:100%;padding:12px;border:0;border-radius:10px;background:#ff
   .result-card{padding:8px}.metric{font-size:14px;min-height:46px}.metric strong{font-size:21px}.metric strong small{font-size:15px}
   .recommend{grid-template-columns:105px 1fr;min-height:105px}.big-arrow{font-size:74px}.recommend strong{font-size:31px}.recommend span{font-size:14px}.recommend small{font-size:13px;padding:4px 15px}
 }
+
+
+/* v2: 倍率入力をコンパクト化 */
+.odds-grid{
+  max-width:760px;
+  margin:0 auto;
+  gap:16px;
+}
+.odds-card{
+  padding:7px 12px;
+}
+.odds-card .odds-title{
+  font-size:21px;
+}
+.odds-card > small{
+  font-size:15px;
+}
+.odds-input-wrap{
+  margin-top:2px;
+}
+.odds-input-wrap input{
+  font-size:38px;
+  height:46px;
+}
+.odds-input-wrap span{
+  font-size:25px;
+}
+
+@media(max-width:700px){
+  .odds-grid{
+    max-width:100%;
+    gap:8px;
+  }
+  .odds-card{
+    padding:6px 7px;
+  }
+  .odds-card .odds-title{
+    font-size:14px;
+  }
+  .odds-card > small{
+    font-size:10px;
+  }
+  .odds-input-wrap input{
+    font-size:29px;
+    height:36px;
+  }
+  .odds-input-wrap span{
+    font-size:20px;
+  }
+}
