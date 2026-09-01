@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#05070a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HiLo">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>FIRST PERSON HiLo 判定計算ツール</title>
+<style>
+:root{
+  --bg:#020407;--panel:#081018;--panel2:#0b141e;--line:#2b3a49;
+  --text:#f8fafc;--muted:#aab5c0;--yellow:#ffd400;--green:#00e84f;
+  --blue:#1592ff;--red:#ff3131;--gold:#ffd73c;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:#000;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic",sans-serif}
+body{min-height:100vh;padding:env(safe-area-inset-top) 0 calc(82px + env(safe-area-inset-bottom))}
+.app{max-width:760px;margin:0 auto;background:radial-gradient(circle at 50% -10%,#0a131c 0,#020407 38%,#000 100%);min-height:100vh}
+header{height:84px;display:flex;align-items:center;justify-content:center;position:sticky;top:0;z-index:10;background:rgba(0,0,0,.92);backdrop-filter:blur(16px);border-bottom:1px solid #111}
+.menu,.help{position:absolute;top:28px;background:none;border:0;color:#fff;font-size:30px}
+.menu{left:16px}.help{right:18px;color:var(--yellow);font-size:32px}
+.title{text-align:center;line-height:1.05;font-weight:900;letter-spacing:.4px}
+.title .main{font-size:24px}.title .main b{color:var(--yellow)}
+.title .sub{font-size:16px;margin-top:4px}
+main{padding:8px 14px 20px}
+.panel{border:1px solid #263747;border-radius:16px;background:linear-gradient(180deg,rgba(8,16,24,.98),rgba(4,10,15,.98));padding:13px;margin-bottom:12px;box-shadow:0 8px 30px rgba(0,0,0,.3)}
+.panel-title{font-weight:900;font-size:20px;margin:2px 0 14px;display:flex;align-items:center;justify-content:space-between}
+.reset{font-size:15px;font-weight:700;color:#dce4ec;background:none;border:0}
+.rank-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}
+.rank{
+  height:78px;border-radius:12px;border:1px solid #42515f;background:linear-gradient(180deg,#151c22,#0b1116);
+  color:#fff;font-size:28px;font-weight:900;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)
+}
+.rank.active{background:linear-gradient(180deg,#ffe83c,#ffb800);color:#050505;border-color:#ffd000;box-shadow:0 0 18px rgba(255,208,0,.35)}
+.scale{display:flex;align-items:center;gap:10px;margin-top:14px;color:#e7edf3;font-size:16px}
+.scale-line{height:8px;flex:1;border-radius:20px;background:linear-gradient(90deg,#009bff,#00cfbd,#55d800,#ffd000,#ff7420,#ff1f1f);position:relative}
+.scale-line:after{content:"";position:absolute;right:-2px;top:-5px;width:16px;height:16px;border-top:3px solid #ff3535;border-right:3px solid #ff3535;transform:rotate(45deg)}
+.odds-grid,.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.odds-card{border-radius:14px;padding:12px;text-align:center;background:#06100b}
+.odds-card.green{border:1px solid #00c94a}.odds-card.blue{border:1px solid #148cff;background:#06101a}
+.odds-label{font-weight:900;font-size:18px}.green .odds-label{color:var(--green)}.blue .odds-label{color:var(--blue)}
+.odds-sub{font-size:13px;font-weight:800;margin-top:2px}
+.odds-row{display:flex;justify-content:center;align-items:end;gap:8px;margin-top:8px}
+.odds-row input{width:120px;background:transparent;border:0;color:#fff;font-size:38px;font-weight:900;text-align:center;outline:none}
+.x{font-size:22px;color:#bcc5cf;margin-bottom:7px}
+.bet-wrap{display:grid;grid-template-columns:1fr 28px 1fr;gap:10px;align-items:end}
+.money-block label{font-size:13px;color:#d4dce4;text-align:center;display:block;margin-bottom:6px}
+.money{display:flex;align-items:center;gap:6px}
+.money input{width:100%;height:48px;border-radius:10px;border:1px solid #465461;background:#090e14;color:#fff;font-size:22px;text-align:center}
+.arrow{text-align:center;font-size:38px;line-height:48px}
+.multiplier{margin-top:12px;border:1px solid #e1b700;border-radius:12px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,#16170b,#0b0c08)}
+.mult-left{font-weight:900}.mult-left span{font-size:26px;margin-right:10px}
+.mult-right{font-size:36px;font-weight:900;color:var(--gold)}.mult-right small{font-size:16px}
+.result-card{border-radius:14px;padding:10px 12px}
+.result-card.green{border:1px solid #00c94a;background:#04100a}.result-card.blue{border:1px solid #148cff;background:#04101a}
+.result-head{text-align:center;font-weight:900;font-size:18px;padding-bottom:6px;border-bottom:1px solid #23303b}
+.result-card.green .result-head{color:var(--green)}.result-card.blue .result-head{color:var(--blue)}
+.metric{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1d2832;font-size:14px}
+.metric:last-child{border-bottom:0}.metric strong{font-size:23px}
+.pos{color:var(--green)}.neg{color:var(--red)}.bluev{color:#2198ff}
+.recommend{border:1px solid #06db49;border-radius:14px;background:linear-gradient(90deg,#05310f,#008a1f 52%,#004c13);padding:13px;text-align:center;position:relative;overflow:hidden}
+.recommend .arrowup{font-size:55px;position:absolute;left:28px;top:9px;color:#24ff5a;transform:rotate(-18deg)}
+.recommend .big{font-size:34px;font-weight:950;letter-spacing:.5px}.recommend .small{font-size:14px;font-weight:800}
+.pill{display:inline-block;background:#fff;color:#232323;border-radius:24px;padding:5px 22px;margin-top:4px;font-weight:900;font-size:14px}
+.hidden{display:none!important}
+.tabbar{position:fixed;left:0;right:0;bottom:0;height:76px;padding-bottom:env(safe-area-inset-bottom);background:rgba(4,8,12,.97);border-top:1px solid #26313b;display:flex;z-index:20}
+.tab{flex:1;background:none;border:0;color:#9aa6b3;font-size:13px;padding:7px 0 4px}.tab .ico{display:block;font-size:25px;line-height:26px}.tab.active{color:var(--yellow)}
+.page{display:none}.page.active{display:block}
+.history-item{padding:11px 0;border-bottom:1px solid #1e2a35;display:flex;justify-content:space-between}
+.empty{color:#8e99a5;text-align:center;padding:34px 8px}
+.setting-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #1e2a35}
+.setting-row input{width:90px;background:#090e14;color:#fff;border:1px solid #465461;border-radius:8px;padding:8px;text-align:center}
+.note{font-size:12px;color:#8f9ba7;line-height:1.55;margin-top:10px}
+@media(max-width:430px){
+ .title .main{font-size:22px}.rank{height:70px;font-size:25px}.panel-title{font-size:18px}
+ .odds-row input{width:95px;font-size:34px}.recommend .big{font-size:30px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <button class="menu">☰</button>
+  <div class="title"><div class="main">FIRST PERSON <b>HiLo</b></div><div class="sub">判定計算ツール</div></div>
+  <button class="help" id="helpBtn">?</button>
+</header>
+
+<main>
+<section class="page active" id="calcPage">
+  <div class="panel">
+    <div class="panel-title"><span>① 現在のカードを選択</span><button class="reset" id="resetBtn">↻ リセット</button></div>
+    <div class="rank-grid" id="rankGrid"></div>
+    <div class="scale"><span>低</span><div class="scale-line"></div><span>高</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title"><span>② 倍率を入力</span></div>
+    <div class="odds-grid">
+      <div class="odds-card green">
+        <div class="odds-label" id="highLabel">HIGHER / SAME</div>
+        <div class="odds-sub" id="highSub">（高い または 同じ）</div>
+        <div class="odds-row"><input id="highOdds" inputmode="decimal" type="number" step="0.01" value="1.60"><span class="x">×</span></div>
+      </div>
+      <div class="odds-card blue">
+        <div class="odds-label" id="lowLabel">LOWER / SAME</div>
+        <div class="odds-sub" id="lowSub">（低い または 同じ）</div>
+        <div class="odds-row"><input id="lowOdds" inputmode="decimal" type="number" step="0.01" value="2.10"><span class="x">×</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title"><span>③ 賭け金を入力（倍率を自動計算）</span></div>
+    <div class="bet-wrap">
+      <div class="money-block"><label>現在の賭け金</label><div class="money"><input id="betNow" type="number" inputmode="numeric" value="1000"><span>円</span></div></div>
+      <div class="arrow">→</div>
+      <div class="money-block"><label>次に当てたときの賭け金</label><div class="money"><input id="betNext" type="number" inputmode="numeric" value="1500"><span>円</span></div></div>
+    </div>
+    <div class="multiplier"><div class="mult-left"><span>🪙↗</span>賭け金の倍率</div><div class="mult-right"><span id="betMult">1.50</span> <small>倍</small></div></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title"><span>④ 計算結果（期待値）</span></div>
+    <div class="result-grid">
+      <div class="result-card green">
+        <div class="result-head" id="highResultLabel">HIGHER / SAME</div>
+        <div class="metric"><span>的中確率</span><strong class="pos" id="pHigh">—</strong></div>
+        <div class="metric"><span>期待値</span><strong id="evHigh">—</strong></div>
+        <div class="metric"><span>純利益（的中時）</span><strong class="pos" id="profitHigh">—</strong></div>
+      </div>
+      <div class="result-card blue">
+        <div class="result-head" id="lowResultLabel">LOWER / SAME</div>
+        <div class="metric"><span>的中確率</span><strong class="bluev" id="pLow">—</strong></div>
+        <div class="metric"><span>期待値</span><strong id="evLow">—</strong></div>
+        <div class="metric"><span>純利益（的中時）</span><strong class="bluev" id="profitLow">—</strong></div>
+      </div>
+    </div>
+    <div class="note">Evolution First Person HiLo の仕様に合わせ、次カードは毎回新しい52枚デッキから出る前提で計算します。期待値 = 的中確率 × 配当倍率 − 1。</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title"><span>⑤ 推奨される選択</span></div>
+    <div class="recommend" id="recommendBox">
+      <div class="arrowup">↗</div>
+      <div class="big" id="recommendMain">HIGHER / SAME</div>
+      <div class="small" id="recommendSub">（高い または 同じ）</div>
+      <div class="pill">●　こちらを推奨します！</div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="historyPage">
+  <div class="panel">
+    <div class="panel-title"><span>履歴</span><button class="reset" id="clearHistory">履歴削除</button></div>
+    <div id="historyList"></div>
+  </div>
+</section>
+
+<section class="page" id="statsPage">
+  <div class="panel">
+    <div class="panel-title"><span>統計</span></div>
+    <div class="metric"><span>計算回数</span><strong id="statCount">0</strong></div>
+    <div class="metric"><span>左側選択 推奨</span><strong class="pos" id="statHigh">0</strong></div>
+    <div class="metric"><span>右側選択 推奨</span><strong class="bluev" id="statLow">0</strong></div>
+  </div>
+</section>
+
+<section class="page" id="settingsPage">
+  <div class="panel">
+    <div class="panel-title"><span>設定</span></div>
+    <div class="setting-row"><span>確率モデル</span><strong>毎回 新しい52枚デッキ</strong><input id="copies" type="hidden" value="4"></div>
+    <div class="setting-row"><span>通貨表示</span><input id="currency" value="円" maxlength="4"></div>
+    <div class="note">Evolution First Person HiLo は、各予想の次カードが新しいデッキから配られる仕様です。そのため過去に出たカードは次回確率に影響しません。</div>
+  </div>
+</section>
+</main>
+
+<nav class="tabbar">
+  <button class="tab active" data-page="calcPage"><span class="ico">▦</span>計算</button>
+  <button class="tab" data-page="historyPage"><span class="ico">◷</span>履歴</button>
+  <button class="tab" data-page="statsPage"><span class="ico">▥</span>統計</button>
+  <button class="tab" data-page="settingsPage"><span class="ico">⚙</span>設定</button>
+</nav>
+</div>
+
+<script>
+const ranks=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+let selected='7';
+let history=JSON.parse(localStorage.getItem('hilo-ui-history')||'[]');
+
+const $=id=>document.getElementById(id);
+const grid=$('rankGrid');
+
+ranks.forEach(r=>{
+  const b=document.createElement('button');
+  b.className='rank'+(r===selected?' active':'');
+  b.textContent=r;
+  b.onclick=()=>{
+    selected=r;
+    [...grid.children].forEach(x=>x.classList.toggle('active',x.textContent===r));
+    calc(true);
+  };
+  grid.appendChild(b);
+});
+
+function fmtMoney(v){
+  const c=$('currency').value||'円';
+  return Math.round(v).toLocaleString('ja-JP')+' '+c;
+}
+function pct(v){ return (v*100).toFixed(2)+'%'; }
+function signedPct(v){ return (v>=0?'+':'')+(v*100).toFixed(2)+'%'; }
+
+function calc(save=false){
+  const i=ranks.indexOf(selected);
+
+  // Evolution First Person HiLo:
+  // Every next card is drawn from a NEW 52-card deck.
+  // Each of the 13 ranks therefore has probability 4/52 = 1/13.
+  let leftLabel='HIGHER / SAME';
+  let leftSub='（高い または 同じ）';
+  let rightLabel='LOWER / SAME';
+  let rightSub='（低い または 同じ）';
+
+  let ph, pl;
+
+  if(selected==='2'){
+    // Official special case: SAME vs HIGHER
+    leftLabel='HIGHER';
+    leftSub='（高い）';
+    rightLabel='SAME';
+    rightSub='（同じ）';
+    ph=12/13;
+    pl=1/13;
+  }else if(selected==='A'){
+    // Official special case: LOWER vs SAME
+    leftLabel='SAME';
+    leftSub='（同じ）';
+    rightLabel='LOWER';
+    rightSub='（低い）';
+    ph=1/13;
+    pl=12/13;
+  }else{
+    // 3 through K: inclusive choices on each side.
+    // ranks = 2,3,4,5,6,7,8,9,10,J,Q,K,A
+    ph=(ranks.length-i)/13; // current rank + all higher ranks
+    pl=(i+1)/13;           // all lower ranks + current rank
+  }
+
+  $('highLabel').textContent=leftLabel;
+  $('highSub').textContent=leftSub;
+  $('lowLabel').textContent=rightLabel;
+  $('lowSub').textContent=rightSub;
+  $('highResultLabel').textContent=leftLabel;
+  $('lowResultLabel').textContent=rightLabel;
+
+  const ho=Number($('highOdds').value)||0;
+  const lo=Number($('lowOdds').value)||0;
+  const bet=Number($('betNow').value)||0;
+  const next=Number($('betNext').value)||0;
+  const mult=bet>0?next/bet:0;
+
+  const evh=ph*ho-1;
+  const evl=pl*lo-1;
+  const profH=bet*(ho-1);
+  const profL=bet*(lo-1);
+
+  $('pHigh').textContent=pct(ph);
+  $('pLow').textContent=pct(pl);
+  $('evHigh').textContent=signedPct(evh);
+  $('evLow').textContent=signedPct(evl);
+  $('evHigh').className=evh>=0?'pos':'neg';
+  $('evLow').className=evl>=0?'pos':'neg';
+  $('profitHigh').textContent=(profH>=0?'+':'')+fmtMoney(profH);
+  $('profitLow').textContent=(profL>=0?'+':'')+fmtMoney(profL);
+  $('betMult').textContent=mult.toFixed(2);
+
+  const highBest=evh>=evl;
+  const recLabel=highBest?leftLabel:rightLabel;
+  const recSub=highBest?leftSub:rightSub;
+  $('recommendMain').textContent=recLabel;
+  $('recommendSub').textContent=recSub;
+
+  const box=$('recommendBox');
+  if(highBest){
+    box.style.borderColor='#06db49';
+    box.style.background='linear-gradient(90deg,#05310f,#008a1f 52%,#004c13)';
+  }else{
+    box.style.borderColor='#148cff';
+    box.style.background='linear-gradient(90deg,#04172b,#075a9d 52%,#063053)';
+  }
+
+  if(save){
+    history.unshift({
+      time:new Date().toLocaleString('ja-JP'),
+      card:selected,
+      leftLabel:leftLabel,
+      rightLabel:rightLabel,
+      high:pct(ph),
+      low:pct(pl),
+      evh:signedPct(evh),
+      evl:signedPct(evl),
+      rec:recLabel
+    });
+    history=history.slice(0,100);
+    localStorage.setItem('hilo-ui-history',JSON.stringify(history));
+    renderHistory();
+  }
+  renderStats();
+  localStorage.setItem('hilo-ui-state',JSON.stringify({
+    selected,
+    highOdds:$('highOdds').value,
+    lowOdds:$('lowOdds').value,
+    betNow:$('betNow').value,
+    betNext:$('betNext').value,
+    copies:$('copies').value,
+    currency:$('currency').value
+  }));
+}
+function renderHistory(){
+  const el=$('historyList');
+  if(!history.length){ el.innerHTML='<div class="empty">まだ履歴がありません</div>'; return; }
+  el.innerHTML=history.map(h=>`<div class="history-item"><div><b>${h.card}</b>　${h.rec}<br><small>${h.time}</small></div><div style="text-align:right">${h.evh}<br>${h.evl}</div></div>`).join('');
+}
+function renderStats(){
+  $('statCount').textContent=history.length;
+  $('statHigh').textContent=history.filter(x=>['HIGHER / SAME','HIGHER','SAME'].includes(x.rec) && x.leftLabel===x.rec).length;
+  $('statLow').textContent=history.length-Number($('statHigh').textContent);
+}
+function load(){
+  try{
+    const s=JSON.parse(localStorage.getItem('hilo-ui-state')||'null');
+    if(s){
+      selected=s.selected||selected;
+      $('highOdds').value=s.highOdds||'1.60';
+      $('lowOdds').value=s.lowOdds||'2.10';
+      $('betNow').value=s.betNow||'1000';
+      $('betNext').value=s.betNext||'1500';
+      $('copies').value=s.copies||'4';
+      $('currency').value=s.currency||'円';
+      [...grid.children].forEach(x=>x.classList.toggle('active',x.textContent===selected));
+    }
+  }catch(e){}
+}
+['highOdds','lowOdds','betNow','betNext','copies','currency'].forEach(id=>$(id).addEventListener('input',()=>calc(false)));
+$('resetBtn').onclick=()=>{
+  selected='7'; $('highOdds').value='1.60'; $('lowOdds').value='2.10'; $('betNow').value='1000'; $('betNext').value='1500';
+  [...grid.children].forEach(x=>x.classList.toggle('active',x.textContent===selected));
+  calc(false);
+};
+$('clearHistory').onclick=()=>{
+  if(confirm('履歴を削除しますか？')){ history=[]; localStorage.removeItem('hilo-ui-history'); renderHistory(); renderStats(); }
+};
+$('helpBtn').onclick=()=>alert('カードと倍率、賭け金を入力すると、HIGHER/SAME と LOWER/SAME の確率・期待値を比較して推奨側を表示します。');
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  $(t.dataset.page).classList.add('active');
+});
+load(); renderHistory(); renderStats(); calc(false);
+
+if('serviceWorker' in navigator){
+  addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
+}
+</script>
+</body>
+</html>

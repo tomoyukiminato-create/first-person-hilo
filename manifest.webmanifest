@@ -1,0 +1,16 @@
+{
+  "name": "FIRST PERSON HiLo 正確確率ツール",
+  "short_name": "HiLo Odds",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#05070a",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
