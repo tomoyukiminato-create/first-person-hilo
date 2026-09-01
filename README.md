@@ -1,15 +1,22 @@
-# First Person Hi-Lo Counter PWA
+# FIRST PERSON HiLo PWA
 
-## 使い方
-1. このフォルダをHTTPS対応のWebサーバーに配置
-2. iPhoneのSafariで開く
-3. 共有 → ホーム画面に追加
+GitHub Pages にそのまま配置できる静的PWAです。
 
-## ローカル確認
-PCで:
-python -m http.server 8080
+## GitHub Pages
+1. リポジトリ直下にこのフォルダ内のファイルをアップロード
+2. Settings → Pages
+3. Deploy from a branch
+4. main / (root) を選択
+5. iPhoneのSafariで公開URLを開く
+6. 共有 → ホーム画面に追加
 
-その後:
-http://localhost:8080/first-person-hilo-pwa/
-
-※ Service Workerは通常 localhost または HTTPS で有効です。
+## 主な機能
+- 2〜Aの現在カード選択
+- HIGHER / SAME、LOWER / SAME の確率
+- 配当倍率入力
+- 賭け金倍率の自動計算
+- EV計算
+- 推奨判定
+- 履歴 / 統計 / 設定
+- localStorage保存
+- オフラインPWA
