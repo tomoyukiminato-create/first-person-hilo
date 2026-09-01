@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+  <meta name="theme-color" content="#050b12">
+  <meta name="color-scheme" content="dark">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="First Person HiLo">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <link rel="icon" href="./icon-192.png" sizes="192x192">
+  <link rel="icon" href="./icon-512.png" sizes="512x512">
+  <title>First Person HiLo</title>
+  <style>
+    :root{
+      --bg:#03080d;--panel:#08131e;--panel2:#0b1826;--line:#344253;
+      --text:#fff;--muted:#a9b4c2;--red:#ff3344;--blue:#2f80ff;--green:#29ef29;
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{margin:0;background:#000;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
+    body{min-height:100%;overscroll-behavior-y:none}
+    button,input{font:inherit}
+    button{touch-action:manipulation}
+    .app{max-width:520px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 12px) 12px calc(env(safe-area-inset-bottom) + 86px);background:linear-gradient(180deg,#06111a 0%,#010407 100%);min-height:100vh}
+    .screen{display:none}.screen.active{display:block}
+    .header{position:relative;text-align:center;padding:8px 44px 14px}
+    .header h1{margin:0;font-size:28px;font-weight:800}
+    .header p{margin:5px 0 0;color:#d5dbe3;font-size:14px}
+    .gear{position:absolute;right:0;top:3px;width:44px;height:44px;border:0;background:none;color:white;font-size:28px}
+    .panel{border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(13,27,42,.96),rgba(5,14,23,.98));padding:12px;margin-bottom:14px}
+    .title{font-size:18px;font-weight:800;margin-bottom:12px}
+    .cards{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}
+    .rank{height:54px;border-radius:9px;border:1px solid #697789;background:#0c1723;color:#fff;font-size:19px;font-weight:800}
+    .rank.sel{background:linear-gradient(180deg,#ff2735,#df151e);border-color:#fff}
+    .current{margin-top:12px;border:1px solid var(--line);border-radius:10px;text-align:center;padding:10px;background:#0a1521}
+    .current span{display:block;color:#e0e6ee;font-size:14px}
+    .current strong{display:block;color:var(--red);font-size:48px;line-height:1.05;margin-top:4px}
+    .seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:12px}
+    .seg button{height:48px;border:0;background:#101a27;color:#fff;font-weight:750}
+    .seg button.active{background:linear-gradient(180deg,#0d68fa,#0755d5)}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+    .field label{display:block;text-align:center;font-size:13px;font-weight:750;margin-bottom:7px}
+    .field input{width:100%;height:54px;border:1px solid #40526a;border-radius:9px;background:#08131f;color:white;text-align:center;font-size:23px;font-weight:800;outline:none}
+    .field input:focus{border-color:#6ca4ff;box-shadow:0 0 0 2px rgba(47,128,255,.18)}
+    .arrow{text-align:center;font-size:30px;margin:4px 0}
+    .mults{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:12px}
+    .mult{border:1px solid;border-radius:10px;padding:11px;text-align:center}
+    .mult.low{border-color:var(--blue);background:rgba(47,128,255,.06)}
+    .mult.high{border-color:var(--red);background:rgba(255,51,68,.06)}
+    .mult .lab{font-size:15px;font-weight:800}
+    .mult .val{display:block;font-size:38px;font-weight:900;line-height:1.05;margin-top:5px}
+    .lowtxt{color:var(--blue)}.hightxt{color:var(--red)}
+    .formula{text-align:center;font-size:12px;color:#b9c4d0;margin-top:8px}
+    .result-title{font-size:17px;font-weight:800;margin:3px 0 9px}
+    .result{border:2px solid #3d4d61;border-radius:14px;text-align:center;padding:13px;background:#07111c}
+    .result.high{border-color:var(--green);background:linear-gradient(180deg,rgba(0,112,10,.9),rgba(0,53,8,.93));box-shadow:0 0 18px rgba(41,239,41,.25)}
+    .result.low{border-color:var(--blue);background:linear-gradient(180deg,rgba(0,76,160,.9),rgba(0,34,80,.95));box-shadow:0 0 18px rgba(47,128,255,.25)}
+    .result .small{font-size:14px;font-weight:800}
+    .choice{font-size:66px;font-weight:950;line-height:.95;margin:6px 0}
+    .push{font-size:19px;font-weight:850}
+    .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    .stat{border:1px solid;border-radius:11px;overflow:hidden;text-align:center;background:#07111d}
+    .stat.low{border-color:var(--blue)}.stat.high{border-color:var(--red)}
+    .stat .head{padding:7px;background:rgba(255,255,255,.03);font-size:18px;font-weight:850}
+    .stat .body{padding:10px}
+    .prob{font-size:28px;font-weight:900;margin:3px 0 6px}.ev{font-size:26px;font-weight:900}
+    .reset,.save{width:100%;height:50px;border:0;border-radius:9px;background:linear-gradient(180deg,#263443,#182431);color:#fff;font-size:18px;font-weight:800;margin-top:11px}
+    .save{background:linear-gradient(180deg,#156ffb,#0755d2)}
+    .note{font-size:11px;color:var(--muted);text-align:center;line-height:1.5;margin-top:8px}
+    .history-row{display:grid;grid-template-columns:48px 1fr auto;gap:10px;align-items:center;padding:10px 2px;border-bottom:1px solid #263546}
+    .history-row:last-child{border-bottom:0}
+    .badge{width:42px;height:42px;border-radius:9px;background:#132336;display:grid;place-items:center;font-weight:900;font-size:19px}
+    .pill{padding:5px 8px;border-radius:999px;background:#152334;font-size:11px}
+    .empty{text-align:center;color:var(--muted);padding:28px 8px}
+    .statbox{border:1px solid var(--line);border-radius:10px;background:#0b1622;padding:12px;text-align:center}
+    .statbox strong{display:block;font-size:28px;margin-top:4px}
+    .barwrap{margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:10px;background:#0b1622}
+    .bars{display:grid;grid-template-columns:repeat(13,1fr);gap:5px;align-items:end;height:150px;margin-top:8px}
+    .bar{background:linear-gradient(180deg,#ff4654,#bf1423);border-radius:3px 3px 0 0;min-height:2px}
+    .labels{display:grid;grid-template-columns:repeat(13,1fr);gap:5px;font-size:10px;color:#d3dae3;text-align:center;margin-top:4px}
+    .donutRow{display:grid;grid-template-columns:140px 1fr;gap:14px;align-items:center;margin-top:12px}
+    .donut{width:130px;height:130px;border-radius:50%;margin:auto;background:conic-gradient(var(--red) 0deg 180deg,var(--blue) 180deg 360deg);position:relative}
+    .donut:after{content:"";position:absolute;inset:28px;background:#08131f;border-radius:50%}
+    .legend{font-size:13px;line-height:1.8}
+    .help h3{margin:16px 0 5px}.help p{margin:0;color:#c5ced9;line-height:1.65}
+    .install{margin-top:14px;padding:12px;border:1px dashed #4e79ae;border-radius:12px;background:rgba(31,92,165,.09);line-height:1.6}
+    .nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(520px,100%);display:grid;grid-template-columns:repeat(4,1fr);background:rgba(4,11,18,.97);border-top:1px solid #263545;padding:7px 5px calc(env(safe-area-inset-bottom) + 5px);z-index:20;backdrop-filter:blur(16px)}
+    .nav button{border:0;background:none;color:#98a6b7;min-height:55px;font-size:11px;font-weight:700}
+    .nav button .ico{display:block;font-size:22px;margin-bottom:2px}
+    .nav button.active{color:var(--blue)}
+    @media(max-width:390px){.cards{grid-template-columns:repeat(4,1fr)}.rank{height:50px}.choice{font-size:58px}.header h1{font-size:25px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <section id="judge" class="screen active">
+    <div class="header">
+      <h1>First Person HiLo</h1>
+      <p>カードと倍率から押すべき側を判定</p>
+      <button id="gearBtn" class="gear" type="button" aria-label="使い方">⚙︎</button>
+    </div>
+
+    <div class="panel">
+      <div class="title">① 現在のカードを選択</div>
+      <div id="cards" class="cards"></div>
+      <div class="current"><span>現在のカード</span><strong id="currentCard">7</strong></div>
+    </div>
+
+    <div class="panel">
+      <div class="title">② 倍率の入力方法を選択</div>
+      <div class="seg">
+        <button id="directTab" type="button">倍率を直接入力</button>
+        <button id="moneyTab" type="button" class="active">賭け金から倍率を計算</button>
+      </div>
+
+      <div id="moneyArea">
+        <div class="field">
+          <label>現在の賭け金 (stake)</label>
+          <input id="stake" type="number" inputmode="decimal" min="0" step="0.01" value="100">
+        </div>
+        <div class="arrow">→</div>
+        <div class="grid2">
+          <div class="field"><label class="lowtxt">LOW 払戻し総額</label><input id="lowReturn" type="number" inputmode="decimal" min="0" step="0.01" value="132"></div>
+          <div class="field"><label class="hightxt">HIGH 払戻し総額</label><input id="highReturn" type="number" inputmode="decimal" min="0" step="0.01" value="186"></div>
+        </div>
+      </div>
+
+      <div id="directArea" class="grid2" style="display:none">
+        <div class="field"><label class="lowtxt">LOW倍率</label><input id="lowDirect" type="number" inputmode="decimal" min="0" step="0.01" value="1.32"></div>
+        <div class="field"><label class="hightxt">HIGH倍率</label><input id="highDirect" type="number" inputmode="decimal" min="0" step="0.01" value="1.86"></div>
+      </div>
+
+      <div class="mults">
+        <div class="mult low"><div class="lab lowtxt">LOW倍率</div><span id="lowMult" class="val lowtxt">1.32</span>倍</div>
+        <div class="mult high"><div class="lab hightxt">HIGH倍率</div><span id="highMult" class="val hightxt">1.86</span>倍</div>
+      </div>
+      <div class="formula">※ 倍率 = 払戻し総額 ÷ 賭け金</div>
+    </div>
+
+    <div class="result-title">③ 判定結果（EV = 的中確率 × 払戻し倍率）</div>
+    <div id="result" class="result high">
+      <div class="small">おすすめ</div>
+      <div id="decision" class="choice">HIGH</div>
+      <div class="push">を押してください！</div>
+    </div>
+
+    <div class="stats">
+      <div class="stat low">
+        <div id="lowHead" class="head lowtxt">LOW</div>
+        <div class="body"><div>的中確率</div><div id="lowProb" class="prob lowtxt">46.15%</div><div>EV</div><div id="lowEV" class="ev lowtxt">0.6092</div></div>
+      </div>
+      <div class="stat high">
+        <div id="highHead" class="head hightxt">HIGH</div>
+        <div class="body"><div>的中確率</div><div id="highProb" class="prob hightxt">53.85%</div><div>EV</div><div id="highEV" class="ev hightxt">1.0015</div></div>
+      </div>
+    </div>
+
+    <button id="saveBtn" class="save" type="button">この判定を履歴に保存</button>
+    <button id="resetBtn" class="reset" type="button">↻ リセット</button>
+    <div class="note">入力した数値から確率とEVを比較する計算ツールです。結果や利益を保証するものではありません。</div>
+  </section>
+
+  <section id="history" class="screen">
+    <div class="header"><h1>履歴</h1></div>
+    <div id="historyList" class="panel"></div>
+    <button id="clearHistory" class="reset" type="button">履歴をすべて削除</button>
+  </section>
+
+  <section id="statistics" class="screen">
+    <div class="header"><h1>統計</h1></div>
+    <div class="grid2">
+      <div class="statbox">総プレイ数<strong id="totalPlays">0</strong></div>
+      <div class="statbox">HIGH<strong id="highRate" class="hightxt">0%</strong></div>
+      <div class="statbox">LOW<strong id="lowRate" class="lowtxt">0%</strong></div>
+      <div class="statbox">平均EV<strong id="avgEV">0.000</strong></div>
+    </div>
+    <div class="barwrap">
+      <div class="title">カード別の選択回数</div>
+      <div id="bars" class="bars"></div>
+      <div id="barLabels" class="labels"></div>
+    </div>
+    <div class="barwrap">
+      <div class="title">結果の内訳</div>
+      <div class="donutRow">
+        <div id="donut" class="donut"></div>
+        <div class="legend">
+          <div><span class="hightxt">■</span> HIGH <span id="highLegend">0</span></div>
+          <div><span class="lowtxt">■</span> LOW <span id="lowLegend">0</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="help" class="screen help">
+    <div class="header"><h1>使い方</h1></div>
+    <div class="panel">
+      <h3>① カードをタップ</h3>
+      <p>現在表示されているカードを2〜Aから選択します。</p>
+      <h3>② 倍率を入力</h3>
+      <p>倍率を直接入力するか、賭け金とLOW/HIGHそれぞれの払戻し総額から倍率を自動計算します。</p>
+      <h3>③ 判定を見る</h3>
+      <p>LOWとHIGHのEVを比較し、高い側を中央に大きく表示します。</p>
+      <div class="install"><strong>iPhoneのホーム画面に追加</strong><br>SafariでこのPWAを開く → 共有ボタン →「ホーム画面に追加」→「追加」。以後はホーム画面のHiLoアイコンから起動できます。</div>
+    </div>
+  </section>
+</div>
+
+<nav class="nav">
+  <button class="active" data-screen="judge" type="button"><span class="ico">⌂</span>判定</button>
+  <button data-screen="history" type="button"><span class="ico">◷</span>履歴</button>
+  <button data-screen="statistics" type="button"><span class="ico">▥</span>統計</button>
+  <button data-screen="help" type="button"><span class="ico">▤</span>使い方</button>
+</nav>
+
+<script>
+(()=>{
+  const ranks=[['2',2],['3',3],['4',4],['5',5],['6',6],['7',7],['8',8],['9',9],['10',10],['J',11],['Q',12],['K',13],['A',1]];
+  let selected={label:'7',value:7};
+  let mode='money';
+  let lastCalc=null;
+  const $=id=>document.getElementById(id);
+  const cards=$('cards');
+
+  function val(id){
+    const s=$(id).value.trim();
+    if(!s)return null;
+    const n=Number(s);
+    return Number.isFinite(n)&&n>=0?n:null;
+  }
+  function probs(v){
+    return {high:(14-v)/13,low:(v-1)/13};
+  }
+  function pct(x){return (x*100).toFixed(2)+'%'}
+  function moneyMult(id){
+    const s=val('stake'),r=val(id);
+    if(s===null||s<=0||r===null)return null;
+    return r/s;
+  }
+  function getLowMult(){return mode==='money'?moneyMult('lowReturn'):val('lowDirect')}
+  function getHighMult(){return mode==='money'?moneyMult('highReturn'):val('highDirect')}
+
+  ranks.forEach(([label,value])=>{
+    const b=document.createElement('button');
+    b.type='button';b.className='rank'+(label==='7'?' sel':'');b.textContent=label;
+    b.addEventListener('click',()=>{
+      selected={label,value};
+      cards.querySelectorAll('.rank').forEach(x=>x.classList.remove('sel'));
+      b.classList.add('sel');
+      $('currentCard').textContent=label;
+      render();
+    });
+    cards.appendChild(b);
+  });
+
+  function render(){
+    const p=probs(selected.value);
+    const lm=getLowMult(),hm=getHighMult();
+    $('lowMult').textContent=lm===null?'—':lm.toFixed(2);
+    $('highMult').textContent=hm===null?'—':hm.toFixed(2);
+    $('lowProb').textContent=pct(p.low);
+    $('highProb').textContent=pct(p.high);
+
+    const lev=lm===null?null:p.low*lm;
+    const hev=hm===null?null:p.high*hm;
+    $('lowEV').textContent=lev===null?'—':lev.toFixed(4);
+    $('highEV').textContent=hev===null?'—':hev.toFixed(4);
+
+    const box=$('result');
+    box.classList.remove('low','high');
+    let decision='入力待ち';
+    if(lev!==null&&hev!==null){
+      if(Math.abs(lev-hev)<0.000001) decision='同率';
+      else if(lev>hev){decision='LOW';box.classList.add('low')}
+      else {decision='HIGH';box.classList.add('high')}
+    }
+    $('decision').textContent=decision;
+    lastCalc={decision,lowEV:lev,highEV:hev,lowMult:lm,highMult:hm,card:selected.label};
+  }
+
+  ['stake','lowReturn','highReturn','lowDirect','highDirect'].forEach(id=>$(id).addEventListener('input',render));
+
+  $('directTab').addEventListener('click',()=>{
+    mode='direct';$('directTab').classList.add('active');$('moneyTab').classList.remove('active');
+    $('directArea').style.display='grid';$('moneyArea').style.display='none';render();
+  });
+  $('moneyTab').addEventListener('click',()=>{
+    mode='money';$('moneyTab').classList.add('active');$('directTab').classList.remove('active');
+    $('moneyArea').style.display='block';$('directArea').style.display='none';render();
+  });
+
+  function readHistory(){
+    try{return JSON.parse(localStorage.getItem('hiloHistoryPhoto')||'[]')}catch{return[]}
+  }
+  function writeHistory(arr){localStorage.setItem('hiloHistoryPhoto',JSON.stringify(arr.slice(0,200)))}
+
+  $('saveBtn').addEventListener('click',()=>{
+    if(!lastCalc||!['LOW','HIGH'].includes(lastCalc.decision))return;
+    const arr=readHistory();
+    arr.unshift({...lastCalc,time:Date.now()});
+    writeHistory(arr);
+    $('saveBtn').textContent='保存しました ✓';
+    setTimeout(()=>$('saveBtn').textContent='この判定を履歴に保存',900);
+  });
+
+  $('resetBtn').addEventListener('click',()=>{
+    selected={label:'7',value:7};$('currentCard').textContent='7';
+    cards.querySelectorAll('.rank').forEach(b=>b.classList.toggle('sel',b.textContent==='7'));
+    $('stake').value='100';$('lowReturn').value='132';$('highReturn').value='186';
+    $('lowDirect').value='1.32';$('highDirect').value='1.86';
+    render();
+  });
+
+  function renderHistory(){
+    const arr=readHistory(),box=$('historyList');box.innerHTML='';
+    if(!arr.length){box.innerHTML='<div class="empty">まだ履歴はありません</div>';return}
+    arr.forEach(r=>{
+      const row=document.createElement('div');row.className='history-row';
+      const d=new Date(r.time);
+      row.innerHTML='<div class="badge">'+r.card+'</div><div><strong class="'+(r.decision==='LOW'?'lowtxt':'hightxt')+'">'+r.decision+'</strong><div class="note" style="text-align:left;margin:3px 0 0">'+d.toLocaleDateString()+' '+d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})+'<br>LOW EV '+Number(r.lowEV).toFixed(4)+' / HIGH EV '+Number(r.highEV).toFixed(4)+'</div></div><div class="pill">EV '+Number(r.decision==='LOW'?r.lowEV:r.highEV).toFixed(4)+'</div>';
+      box.appendChild(row);
+    });
+  }
+
+  function renderStatistics(){
+    const arr=readHistory();
+    const total=arr.length;
+    const hc=arr.filter(x=>x.decision==='HIGH').length;
+    const lc=arr.filter(x=>x.decision==='LOW').length;
+    $('totalPlays').textContent=total;
+    $('highRate').textContent=total?(hc/total*100).toFixed(1)+'%':'0%';
+    $('lowRate').textContent=total?(lc/total*100).toFixed(1)+'%':'0%';
+    const evs=arr.map(x=>Number(x.decision==='LOW'?x.lowEV:x.highEV)).filter(Number.isFinite);
+    $('avgEV').textContent=evs.length?(evs.reduce((a,b)=>a+b,0)/evs.length).toFixed(3):'0.000';
+    $('highLegend').textContent=hc+(total?' ('+(hc/total*100).toFixed(1)+'%)':'');
+    $('lowLegend').textContent=lc+(total?' ('+(lc/total*100).toFixed(1)+'%)':'');
+    const deg=total?hc/total*360:0;
+    $('donut').style.background='conic-gradient(var(--red) 0deg '+deg+'deg,var(--blue) '+deg+'deg 360deg)';
+
+    const order=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+    const counts=Object.fromEntries(order.map(k=>[k,0]));
+    arr.forEach(x=>{if(counts[x.card]!==undefined)counts[x.card]++});
+    const max=Math.max(1,...Object.values(counts));
+    const bars=$('bars'),labels=$('barLabels');bars.innerHTML='';labels.innerHTML='';
+    order.forEach(k=>{
+      const b=document.createElement('div');b.className='bar';b.style.height=(counts[k]/max*100)+'%';b.title=k+': '+counts[k];bars.appendChild(b);
+      const l=document.createElement('div');l.textContent=k;labels.appendChild(l);
+    });
+  }
+
+  $('clearHistory').addEventListener('click',()=>{
+    localStorage.removeItem('hiloHistoryPhoto');renderHistory();renderStatistics();
+  });
+
+  document.querySelectorAll('.nav button').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+      document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+      $(btn.dataset.screen).classList.add('active');btn.classList.add('active');
+      if(btn.dataset.screen==='history')renderHistory();
+      if(btn.dataset.screen==='statistics')renderStatistics();
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+  $('gearBtn').addEventListener('click',()=>document.querySelector('.nav button[data-screen="help"]').click());
+
+  render();
+  if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
+})();
+</script>
+</body>
+</html>
