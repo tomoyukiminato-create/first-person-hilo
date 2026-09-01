@@ -1,6 +1,6 @@
-# First Person Hi-Lo Counter
+# First Person HiLo 判定計算ツール
 
-スマートフォン向けの静的PWAです。`index.html` をHTTPSで配信するとホーム画面に追加できます。
+参照画像の黒・青・緑・金を基調に再設計したスマートフォン向け静的PWAです。`index.html` をHTTPSで配信するとホーム画面に追加できます。
 
 ## 計算
 
