@@ -14,7 +14,7 @@
   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
   <link rel="icon" href="./icon-192.png" sizes="192x192">
   <link rel="icon" href="./icon-512.png" sizes="512x512">
-  <title>First Person HiLo - Infinite Deck Dynamic Result</title>
+  <title>First Person HiLo - Infinite Deck Live Result</title>
   <style>
     :root{
       --bg:#03080d;--panel:#08131e;--panel2:#0b1826;--line:#344253;
@@ -97,7 +97,18 @@
   
     .result.tie{border-color:#c8a951;background:linear-gradient(180deg,rgba(200,169,81,.14),rgba(200,169,81,.04))}
     .result.nobet{border-color:#9aa4b2;background:linear-gradient(180deg,rgba(154,164,178,.12),rgba(154,164,178,.04))}
-  </style>
+  
+    .result{
+      transition:transform .16s ease, border-color .16s ease, background .16s ease, box-shadow .16s ease;
+    }
+    .result.live-flash{transform:scale(1.012)}
+    .result.waiting{
+      border-color:#4b5563;
+      background:linear-gradient(180deg,rgba(75,85,99,.12),rgba(75,85,99,.04));
+    }
+    #resultStatus{font-weight:800;letter-spacing:.04em}
+
+</style>
 </head>
 <body>
 <div class="app">
@@ -145,31 +156,31 @@
       <div class="formula">※ 倍率 = 払戻し総額 ÷ 賭け金</div><div class="formula">※ 通常は Lower or Same / Higher or Same。2は Same / Higher、Aは Lower / Same。</div><div class="formula">例：7 → Lower or Same = 6/13 = 46.153846…% / Higher or Same = 8/13 = 61.538461…%</div>
       <div class="formula">期待払戻し率 = 的中確率 × 払戻し倍率</div>
       <div class="formula">期待純利益 = 期待払戻し率 − 1（1賭けたとき）</div>
-      <div class="formula">損益分岐倍率 = 1 ÷ 的中確率</div>
       
     </div>
 
-    <div class="result-title">③ 判定結果（EV = 的中確率 × 払戻し倍率）</div>
-    <div id="result" class="result high">
-      <div class="small">おすすめ</div>
-      <div id="decision" class="choice">HIGHER OR SAME</div><div id="decisionReason" class="push" style="font-size:15px;margin-top:8px">計算結果に応じて自動判定</div>
-      <div class="push">を押してください！</div>
+    <div class="result-title">③ 判定結果（リアルタイム）</div>
+    <div id="result" class="result waiting" aria-live="polite">
+      <div id="resultStatus" class="small">計算待ち</div>
+      <div id="decision" class="choice">入力待ち</div>
+      <div id="decisionReason" class="push" style="font-size:15px;margin-top:8px">倍率を入力してください</div>
+      <div id="decisionAction" class="push"></div>
     </div>
 
     <div class="stats">
       <div class="stat low">
         <div id="lowHead" class="head lowtxt">LOWER OR SAME</div>
-        <div class="body"><div>的中確率</div><div id="lowProb" class="prob lowtxt">46.1538%</div><div>期待払戻し率</div><div id="lowEV" class="ev lowtxt">0.609231</div><div>期待純利益</div><div id="lowNetEV" class="ev lowtxt">-0.390769</div><div id="lowBE" class="formula">損益分岐倍率 2.166667</div></div>
+        <div class="body"><div>的中確率</div><div id="lowProb" class="prob lowtxt">46.1538%</div><div>期待払戻し率</div><div id="lowEV" class="ev lowtxt">0.609231</div><div>期待純利益</div><div id="lowNetEV" class="ev lowtxt">-0.390769</div></div>
       </div>
       <div class="stat high">
         <div id="highHead" class="head hightxt">HIGHER OR SAME</div>
-        <div class="body"><div>的中確率</div><div id="highProb" class="prob hightxt">61.5385%</div><div>期待払戻し率</div><div id="highEV" class="ev hightxt">1.144615</div><div>期待純利益</div><div id="highNetEV" class="ev hightxt">0.144615</div><div id="highBE" class="formula">損益分岐倍率 1.625000</div></div>
+        <div class="body"><div>的中確率</div><div id="highProb" class="prob hightxt">61.5385%</div><div>期待払戻し率</div><div id="highEV" class="ev hightxt">1.144615</div><div>期待純利益</div><div id="highNetEV" class="ev hightxt">0.144615</div></div>
       </div>
     </div>
 
     <button id="saveBtn" class="save" type="button">この判定を履歴に保存</button>
     <button id="resetBtn" class="reset" type="button">↻ リセット</button>
-    <div class="note">的中確率は有利なカード枚数÷52で計算します。毎回新しい52枚デッキなので過去カードは減算しません。確率・EVは丸め前の内部値で計算し、表示だけ丸めます。結果や利益を保証するものではありません。</div>
+    <div class="note">無限デッキモデルとして2〜Aの13ランクを各1/13で計算します。各ドローは独立し、過去カードは確率に影響しません。確率・EVは内部値で計算します。結果や利益を保証するものではありません。</div>
   </section>
 
   <section id="history" class="screen">
@@ -213,7 +224,7 @@
       <h3>端数処理</h3>
       <p>倍率は内部では丸めず保持し、画面表示のみ2〜4桁で丸めます。払戻し額は「切り捨て／四捨五入／切り上げ」と通貨の最小単位を選択できます。EV判定は端数処理による表示誤差を避けるため丸め前の倍率で比較します。</p>
       <h3>判定結果</h3>
-      <p>判定結果は入力値に応じてリアルタイムに変化します。両方がマイナス期待値ならNO BET、片方が高ければその側、同じなら同率と表示します。</p>
+      <p>カードまたは倍率を変更すると、判定カードの表示・色・理由・アクションが即時に更新されます。両方がマイナス期待値ならNO BET、期待値が高い側があればその側、同じなら同率です。</p>
       <h3>期待値の見方</h3>
       <p>期待払戻し率が1.000000なら損益分岐です。期待純利益がプラスなら理論上プラス期待値、マイナスならマイナス期待値です。両方がマイナスの場合は「NO BET」と表示します。</p>
       <h3>③ 判定を見る</h3>
@@ -342,8 +353,7 @@
     }
     const expectedReturn = prob * multiplier; // total return per 1 unit staked
     const expectedNet = expectedReturn - 1;   // net profit per 1 unit staked
-    const breakEvenMultiplier = prob > 0 ? 1 / prob : Infinity;
-    return {expectedReturn, expectedNet, breakEvenMultiplier};
+    return {expectedReturn, expectedNet};
   }
 
   function moneyEV(prob, stake, totalReturn){
@@ -383,8 +393,6 @@
     $('highEV').textContent=hev===null?'—':hev.toFixed(6);
     if($('lowNetEV')) $('lowNetEV').textContent=lowCalc===null?'—':(lowCalc.expectedNet>=0?'+':'')+lowCalc.expectedNet.toFixed(6);
     if($('highNetEV')) $('highNetEV').textContent=highCalc===null?'—':(highCalc.expectedNet>=0?'+':'')+highCalc.expectedNet.toFixed(6);
-    if($('lowBE')) $('lowBE').textContent=lowCalc===null?'損益分岐倍率 —':'損益分岐倍率 '+lowCalc.breakEvenMultiplier.toFixed(6);
-    if($('highBE')) $('highBE').textContent=highCalc===null?'損益分岐倍率 —':'損益分岐倍率 '+highCalc.breakEvenMultiplier.toFixed(6);
 
     const box=$('result');
     box.classList.remove('low','high');
@@ -392,7 +400,7 @@
     let decisionKey='WAIT';
     let reason='倍率を入力してください';
 
-    box.classList.remove('high','low','nobet','tie');
+    box.classList.remove('high','low','nobet','tie','waiting');
 
     if(lowCalc!==null && highCalc!==null){
       const lnet=lowCalc.expectedNet;
@@ -454,6 +462,41 @@
 
     $('decision').textContent=decision;
     if($('decisionReason')) $('decisionReason').textContent=reason;
+
+    const status=$('resultStatus');
+    const action=$('decisionAction');
+
+    if(decisionKey==='LOW'){
+      if(status) status.textContent='LOW側が有利';
+      if(action) action.textContent='LOW側を選択';
+    }else if(decisionKey==='HIGH'){
+      if(status) status.textContent='HIGH側が有利';
+      if(action) action.textContent='HIGH側を選択';
+    }else if(decisionKey==='NO_BET'){
+      if(status) status.textContent='見送り';
+      if(action) action.textContent='BETしない';
+    }else if(decisionKey==='TIE'){
+      if(status) status.textContent='同率';
+      if(action) action.textContent='期待値は同じ';
+    }else{
+      box.classList.add('waiting');
+      if(status) status.textContent='計算待ち';
+      if(action) action.textContent='';
+    }
+
+    if(decisionKey!=='WAIT') box.classList.remove('waiting');
+
+    // Visual feedback whenever the calculated result changes.
+    const liveKey=[selected.value,lm,hm,decisionKey].join('|');
+    if(box.dataset.liveKey!==liveKey){
+      box.dataset.liveKey=liveKey;
+      box.classList.remove('live-flash');
+      void box.offsetWidth;
+      box.classList.add('live-flash');
+      clearTimeout(window.__hiloFlashTimer);
+      window.__hiloFlashTimer=setTimeout(()=>box.classList.remove('live-flash'),180);
+    }
+
     lastCalc={decision,decisionKey,lowEV:lev,highEV:hev,lowMult:lm,highMult:hm,card:selected.label};
   }
 
