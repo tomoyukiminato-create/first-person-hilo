@@ -3,80 +3,113 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="theme-color" content="#030609">
+<meta name="theme-color" content="#05070a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="HiLo">
+<meta name="apple-mobile-web-app-title" content="First Person HiLo">
 <link rel="manifest" href="manifest.webmanifest">
 <title>FIRST PERSON HiLo</title>
 <style>
-:root{--bg:#030609;--panel:#081016;--line:#2a3945;--gold:#ffd21a;--green:#15ef59;--blue:#279aff;--red:#ff3f4a}
+:root{--bg:#030508;--panel:#0b1117;--line:#26333e;--white:#f6f7f9;--muted:#a4adb6;--blue:#3298ff;--green:#20e84f;--yellow:#ffd21a;--red:#ff3434}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);color:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Hiragino Kaku Gothic ProN",Arial,sans-serif}
-body{min-height:100vh}.app{max-width:720px;margin:auto;padding:calc(env(safe-area-inset-top) + 8px) 14px calc(env(safe-area-inset-bottom) + 88px)}
-.header{height:82px;display:grid;grid-template-columns:50px 1fr 50px;align-items:center}.menu{font-size:31px;background:none;border:0;color:white}.brand{text-align:center;font-weight:900;font-size:28px}.brand span{color:var(--gold)}.sub{text-align:center;color:#b8c0c8;font-size:14px}.help{width:42px;height:42px;border:2px solid var(--gold);border-radius:50%;background:none;color:var(--gold);font-size:24px}
-.panel{background:linear-gradient(145deg,#0c151c,#05090d);border:1px solid #2b3944;border-radius:17px;padding:12px;margin-bottom:9px;box-shadow:inset 0 0 35px #0007}.title{font-size:20px;font-weight:900;margin-bottom:11px;display:flex;justify-content:space-between;align-items:center}.reset{background:none;border:0;color:#e9edf1;font-size:16px}
-.cards{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.card{height:68px;border-radius:11px;border:1px solid #485661;background:linear-gradient(#171d22,#0b1014);color:#fff;font-size:29px;font-weight:900;box-shadow:inset 0 1px #fff1,0 2px 5px #0009}.card:active{transform:scale(.96)}.card.selected{background:linear-gradient(#ffe02a,#f0b500);color:#111;border-color:#ffe978;box-shadow:0 0 20px #ffd21a66}
-.range{display:flex;align-items:center;gap:9px;margin:10px 2px 1px;font-weight:800}.bar{height:7px;flex:1;border-radius:10px;background:linear-gradient(90deg,#008dff,#00d98a,#d8e400,#ff8500,#f22);position:relative}.bar:after{content:"";position:absolute;right:-1px;top:-6px;border-left:13px solid #f33;border-top:9px solid transparent;border-bottom:9px solid transparent}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.odds{padding:11px;border-radius:14px;text-align:center;border:2px solid}.odds.low{border-color:var(--blue);background:linear-gradient(145deg,#061a2d,#071016)}.odds.high{border-color:var(--green);background:linear-gradient(145deg,#061d0b,#07100a)}.odds h3{margin:0;color:var(--blue);font-size:18px}.odds.high h3{color:var(--green)}.odds p{margin:2px 0 7px;font-size:13px;color:#d2d7dc;font-weight:700}.odds input,.money input{width:100%;background:#05090c;border:1px solid #40505b;color:white;border-radius:10px;text-align:center;font-size:31px;font-weight:900;padding:7px;outline:none}.odds input:focus,.money input:focus{border-color:var(--gold)}
-.money{display:grid;grid-template-columns:1fr 48px 1fr;align-items:end;gap:5px}.money label{text-align:center;display:block;font-size:13px;font-weight:800;margin-bottom:5px}.money input{font-size:24px}.arrowBig{text-align:center;font-size:42px;font-weight:300;padding-bottom:3px}.factor{margin-top:9px;border:1px solid var(--gold);border-radius:11px;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;background:#120f06;font-weight:800}.factor strong{font-size:34px;color:var(--gold)}
-.result{padding:9px;border:1px solid var(--blue);border-radius:12px;background:#06131f}.result.high{border-color:#176a35;background:#06160a}.result h3{margin:0 0 6px;text-align:center;color:var(--blue);font-size:17px}.result.high h3{color:var(--green)}.r{display:flex;justify-content:space-between;border-top:1px solid #fff2;padding:6px 0;font-size:13px}.v{font-size:18px;font-weight:900;color:var(--blue)}.high .v{color:var(--green)}.neg{color:var(--red)!important}
-.recommend{border:2px solid var(--green);border-radius:14px;background:linear-gradient(135deg,#063f13,#001608);text-align:center;padding:13px}.rec{font-size:36px;font-weight:1000}.recSub{font-size:14px;font-weight:800}.badge{display:inline-block;margin-top:7px;background:#fff;color:#111;border-radius:18px;padding:6px 22px;font-weight:900}
-.bottom{position:fixed;z-index:5;bottom:0;left:0;right:0;height:76px;padding-bottom:env(safe-area-inset-bottom);background:#05090df2;border-top:1px solid #35414b}.nav{max-width:720px;margin:auto;height:100%;display:grid;grid-template-columns:repeat(4,1fr)}.nav div{text-align:center;color:#aab2ba;font-size:12px;padding-top:7px}.nav b{display:block;font-size:25px;line-height:27px}.nav .on{color:var(--gold)}
-.toast{position:fixed;z-index:10;left:50%;bottom:94px;transform:translateX(-50%);background:#fff;color:#111;padding:9px 16px;border-radius:20px;font-weight:800;opacity:0;transition:.2s}.toast.show{opacity:1}
-@media(max-width:390px){.app{padding-left:10px;padding-right:10px}.brand{font-size:23px}.header{height:75px}.panel{padding:10px}.title{font-size:18px}.cards{gap:6px}.card{height:62px;font-size:25px}.odds h3{font-size:16px}.odds input{font-size:28px}.rec{font-size:30px}}
+html,body{margin:0;background:var(--bg);color:var(--white);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif}
+body{padding-bottom:82px}.app{width:min(760px,100%);margin:auto;padding:env(safe-area-inset-top) 14px 10px}
+header{height:82px;display:flex;align-items:center;justify-content:space-between}
+.iconbtn{width:44px;height:44px;background:transparent;border:0;color:white;font-size:28px}
+.title{font-size:25px;font-weight:950;text-align:center}.title em{font-style:normal;color:var(--yellow)}
+.subtitle{text-align:center;font-size:13px;color:#b5bec7;font-weight:700;margin-top:2px}
+.panel{margin:9px 0;padding:13px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,#111820,#080d12);box-shadow:0 10px 25px #0008}
+.h{font-size:18px;font-weight:950;margin:0 0 10px}.h small{color:#d8dee3}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.card{height:68px;border:1px solid #3e4b57;border-radius:12px;background:linear-gradient(#1a2229,#0b1015);color:#fff;font-size:28px;font-weight:950}
+.card.active{background:linear-gradient(#ffe228,#e9a800);color:#111;border-color:#fff47b;box-shadow:0 0 20px #ffd21a66}
+.card:active{transform:scale(.97)}
+.range{height:8px;margin:11px 27px 3px;border-radius:99px;background:linear-gradient(90deg,#168dff,#00b9a5,#52d500,#e4ce00,#ff7c00,#ff1e1e)}
+.ends{display:flex;justify-content:space-between;font-size:13px;font-weight:850}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.box{border:1px solid;border-radius:16px;padding:12px 10px;text-align:center;min-height:154px}
+.low{border-color:var(--blue);background:linear-gradient(145deg,#061523,#091018)}.high{border-color:var(--green);background:linear-gradient(145deg,#041b08,#09130c)}
+.name{font-size:18px;font-weight:950}.low .name{color:var(--blue)}.high .name{color:var(--green)}
+.desc{font-size:12px;font-weight:750;color:#d4d9de;margin-top:3px}
+.p{font-size:38px;font-weight:950;margin:12px 0 3px}.tiny{font-size:12px;color:#aeb7c0}.ev{font-size:19px;font-weight:900;margin-top:8px}.positive{color:var(--green)}.negative{color:var(--red)}
+.recommend{border:1px solid var(--green);border-radius:16px;padding:15px;text-align:center;background:linear-gradient(120deg,#03250a,#096219,#03270a)}
+.rec{font-size:33px;font-weight:950}.reason{font-size:13px;color:#d7f8de;margin-top:4px}
+.inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{font-size:12px;color:#adb6bf;font-weight:800}input{width:100%;margin-top:5px;border:1px solid #3b4853;background:#070c11;color:#fff;border-radius:10px;padding:11px;font-size:20px;font-weight:850;text-align:center}
+.note{font-size:12px;color:#a9b2bb;line-height:1.6;margin:8px 0 0}
+.warn{border-color:#6b5b20;background:linear-gradient(145deg,#181509,#0d0c08)}.warn strong{color:var(--yellow)}
+footer{position:fixed;bottom:0;left:0;right:0;height:78px;padding-bottom:env(safe-area-inset-bottom);background:#080c10f2;border-top:1px solid #26313a;z-index:5}.nav{width:min(760px,100%);height:100%;margin:auto;display:flex;justify-content:space-around;align-items:center;color:#aeb6be;font-size:11px;font-weight:850}.nav div{text-align:center}.nav .sel{color:var(--yellow)}.ico{display:block;font-size:22px;margin-bottom:2px}
+@media(max-width:390px){.card{height:61px;font-size:25px}.p{font-size:34px}.box{min-height:145px}.rec{font-size:29px}}
 </style>
 </head>
 <body>
-<main class="app">
-<header class="header"><button class="menu">☰</button><div><div class="brand">FIRST PERSON <span>HiLo</span></div><div class="sub">判定計算ツール</div></div><button class="help" id="help">?</button></header>
+<div class="app">
+<header><button class="iconbtn">☰</button><div><div class="title">FIRST PERSON <em>HiLo</em></div><div class="subtitle">的中確率計算ツール</div></div><button class="iconbtn" onclick="alert('First Person HiLoのルールに基づく確率表示です。次のカードは新しい標準52枚デッキから引かれるため、各ランクは1/13です。')">?</button></header>
 
 <section class="panel">
-<div class="title"><span>① 現在のカードを選択</span><button class="reset" id="reset">↻ リセット</button></div>
-<div class="cards" id="cards"></div>
-<div class="range"><span>低</span><div class="bar"></div><span>高</span></div>
+<h2 class="h">① 現在のカードを選択</h2>
+<div id="cards" class="grid"></div>
+<div class="ends"><span>低 2</span><span>A 高</span></div><div class="range"></div>
 </section>
 
 <section class="panel">
-<div class="title">② 倍率を入力</div>
+<h2 class="h">② 的中確率 <small>（First Person HiLoルール）</small></h2>
 <div class="two">
-<div class="odds low"><h3>LOWER / SAME</h3><p>（低い または 同じ）</p><input id="lowOdds" inputmode="decimal" value="2.10"></div>
-<div class="odds high"><h3>HIGHER / SAME</h3><p>（高い または 同じ）</p><input id="highOdds" inputmode="decimal" value="1.60"></div>
+<div class="box low"><div id="lowName" class="name">LOWER / SAME</div><div id="lowDesc" class="desc">（低い または 同じ）</div><div id="lowP" class="p">—</div><div class="tiny">的中確率</div><div id="lowEV" class="ev">—</div></div>
+<div class="box high"><div id="highName" class="name">HIGHER / SAME</div><div id="highDesc" class="desc">（高い または 同じ）</div><div id="highP" class="p">—</div><div class="tiny">的中確率</div><div id="highEV" class="ev">—</div></div>
 </div>
 </section>
 
 <section class="panel">
-<div class="title">③ 賭け金を入力 <span style="font-size:12px;color:#aaa">（倍率を自動計算）</span></div>
-<div class="money"><div><label>現在の賭け金</label><input id="bet" inputmode="numeric" value="1000"></div><div class="arrowBig">→</div><div><label>次に当てたときの賭け金</label><input id="nextBet" inputmode="numeric" value="1500"></div></div>
-<div class="factor"><span>💰 賭け金の倍率</span><strong id="factor">1.50</strong><span>倍</span></div>
-</section>
-
-<section class="panel">
-<div class="title">④ 計算結果（期待値）</div>
-<div class="two">
-<div class="result"><h3>LOWER / SAME</h3><div class="r"><span>的中確率</span><span class="v" id="lp">46.15%</span></div><div class="r"><span>期待値</span><span class="v" id="lev">-0.031</span></div><div class="r"><span>純利益（的中時）</span><span class="v" id="lprofit">+1,100 円</span></div></div>
-<div class="result high"><h3>HIGHER / SAME</h3><div class="r"><span>的中確率</span><span class="v" id="hp">61.54%</span></div><div class="r"><span>期待値</span><span class="v" id="hev">-0.015</span></div><div class="r"><span>純利益（的中時）</span><span class="v" id="hprofit">+600 円</span></div></div>
+<h2 class="h">③ ゲーム画面の倍率を入力</h2>
+<div class="inputs">
+<div><label id="lowLabel">LOWER / SAME 倍率</label><input id="lowM" inputmode="decimal" value="2.10"></div>
+<div><label id="highLabel">HIGHER / SAME 倍率</label><input id="highM" inputmode="decimal" value="1.60"></div>
 </div>
+<p class="note">期待値は「的中確率 × 表示倍率 − 1」で計算します。最初の意思決定ではゲーム側で1%コミッションが適用されるため、実際の表示倍率をそのまま入力してください。</p>
 </section>
 
 <section class="panel">
-<div class="title">⑤ 推奨される選択</div>
-<div class="recommend" id="recommend"><div style="font-size:38px">↗</div><div class="rec" id="rec">HIGHER / SAME</div><div class="recSub" id="recSub">（高い または 同じ）</div><div class="badge">✓ こちらを推奨します！</div></div>
+<h2 class="h">④ 推奨される選択</h2>
+<div class="recommend"><div id="rec" class="rec">カードを選択</div><div id="reason" class="reason">カードをタップしてください</div></div>
 </section>
-</main>
-<footer class="bottom"><div class="nav"><div class="on"><b>▣</b>計算</div><div><b>◷</b>履歴</div><div><b>▥</b>統計</div><div><b>⚙</b>設定</div></div></footer>
-<div class="toast" id="toast"></div>
+
+<section class="panel warn">
+<strong>重要：確率について</strong>
+<p class="note">このPWAはスクリーンショットの数値を再現するのではなく、公開ルールどおりに計算します。First Person HiLoは新しい標準52枚デッキから毎回カードを引き、2が最低、Aが最高です。そのため各ランクは13分の1。例えば7ならHigher or Sameは7/13＝53.85%、Lower or Sameは6/13＝46.15%です。2ではHigher 12/13＋Same、AではLower 12/13＋Sameという特殊表示になります。</p>
+</section>
+</div>
+<footer><div class="nav"><div class="sel"><span class="ico">▦</span>計算</div><div><span class="ico">◷</span>履歴</div><div><span class="ico">▥</span>統計</div><div><span class="ico">⚙</span>設定</div></div></footer>
 <script>
-const ranks=["2","3","4","5","6","7","8","9","10","J","Q","K","A"],cards=document.getElementById("cards");let selected=5;
-ranks.forEach((r,i)=>{let b=document.createElement("button");b.className="card"+(i===selected?" selected":"");b.textContent=r;b.onclick=()=>{selected=i;document.querySelectorAll(".card").forEach((x,j)=>x.classList.toggle("selected",j===i));calc()};cards.appendChild(b)});
-const $=id=>document.getElementById(id), n=id=>Math.max(0,parseFloat($(id).value)||0), yen=x=>Math.round(x).toLocaleString("ja-JP");
-function calc(){let i=selected,hp=(12-i)/13,lp=(i+1)/13,ho=n("highOdds"),lo=n("lowOdds"),bet=n("bet"),next=n("nextBet"),hf=bet?next/bet:0,hev=hp*ho-1,lev=lp*lo-1;
-$("hp").textContent=(hp*100).toFixed(2)+"%";$("lp").textContent=(lp*100).toFixed(2)+"%";$("hev").textContent=(hev>=0?"+":"")+hev.toFixed(3);$("lev").textContent=(lev>=0?"+":"")+lev.toFixed(3);$("hev").className="v "+(hev<0?"neg":"");$("lev").className="v "+(lev<0?"neg":"");$("hprofit").textContent=(bet*(ho-1)>=0?"+":"")+yen(bet*(ho-1))+" 円";$("lprofit").textContent=(bet*(lo-1)>=0?"+":"")+yen(bet*(lo-1))+" 円";$("factor").textContent=hf.toFixed(2);
-let high=hev>=lev;$("rec").textContent=high?"HIGHER / SAME":"LOWER / SAME";$("recSub").textContent=high?"（高い または 同じ）":"（低い または 同じ）";$("recommend").style.borderColor=high?"var(--green)":"var(--blue)";$("recommend").style.background=high?"linear-gradient(135deg,#063f13,#001608)":"linear-gradient(135deg,#062542,#00101d)";$("recommend").querySelector("div").textContent=high?"↗":"↙"}
-["lowOdds","highOdds","bet","nextBet"].forEach(id=>$(id).addEventListener("input",calc));
-$("reset").onclick=()=>{selected=5;document.querySelectorAll(".card").forEach((x,j)=>x.classList.toggle("selected",j===5));$("lowOdds").value="2.10";$("highOdds").value="1.60";$("bet").value="1000";$("nextBet").value="1500";calc();toast("リセットしました")};
-$("help").onclick=()=>toast("カード → 倍率 → 賭け金の順に入力してください");
-function toast(t){let x=$("toast");x.textContent=t;x.classList.add("show");setTimeout(()=>x.classList.remove("show"),1500)}
-if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js");calc();
+const ranks=["2","3","4","5","6","7","8","9","10","J","Q","K","A"];
+const cards=document.getElementById("cards");
+let idx=5;
+ranks.forEach((r,i)=>{let b=document.createElement("button");b.className="card";b.textContent=r;b.onclick=()=>select(i);cards.appendChild(b)});
+function pc(v){return (v*100).toFixed(2)+"%"}
+function moneyEV(p,m){if(!m||m<=0)return null;return p*m-1}
+function showEV(el,v){if(v===null){el.textContent="期待値 —";return}el.textContent="期待値 "+(v>=0?"+":"")+v.toFixed(3)+" ("+(v*100>=0?"+":"")+(v*100).toFixed(2)+"%)";el.className="ev "+(v>=0?"positive":"negative")}
+function select(i){
+ idx=i; [...cards.children].forEach((x,n)=>x.classList.toggle("active",n===i));
+ let low,high,ln,hn,ld,hd;
+ if(i===0){high=12/13;low=1/13;hn="HIGHER";ln="SAME";hd="（同じ）";ld="（同じ）"}
+ else if(i===12){low=12/13;high=1/13;ln="LOWER";hn="SAME";ld="（低い）";hd="（同じ）"}
+ else {low=i/13;high=(13-i)/13;ln="LOWER / SAME";hn="HIGHER / SAME";ld="（低い または 同じ）";hd="（高い または 同じ）"}
+ document.getElementById("lowName").textContent=ln;document.getElementById("highName").textContent=hn;
+ document.getElementById("lowDesc").textContent=ld;document.getElementById("highDesc").textContent=hd;
+ document.getElementById("lowP").textContent=pc(low);document.getElementById("highP").textContent=pc(high);
+ document.getElementById("lowLabel").textContent=ln+" 倍率";document.getElementById("highLabel").textContent=hn+" 倍率";
+ update(low,high);
+}
+function update(low,high){
+ let lm=Number(document.getElementById("lowM").value),hm=Number(document.getElementById("highM").value);
+ showEV(document.getElementById("lowEV"),moneyEV(low,lm));showEV(document.getElementById("highEV"),moneyEV(high,hm));
+ let lev=moneyEV(low,lm),hev=moneyEV(high,hm);
+ let rec=hev>lev?"HIGHER / SAME":lev>hev?"LOWER / SAME":"同率";
+ document.getElementById("rec").textContent=rec;
+ document.getElementById("reason").textContent=rec==="同率"?"入力された倍率で期待値が同率です":"的中確率だけでなく、入力したゲーム倍率も反映して期待値を比較しています。";
+}
+["lowM","highM"].forEach(id=>document.getElementById(id).addEventListener("input",()=>select(idx)));
+select(idx);
+if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js");
 </script>
 </body></html>
