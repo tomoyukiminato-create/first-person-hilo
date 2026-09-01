@@ -14,7 +14,7 @@
   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
   <link rel="icon" href="./icon-192.png" sizes="192x192">
   <link rel="icon" href="./icon-512.png" sizes="512x512">
-  <title>First Person HiLo - Infinite Deck Live Result</title>
+  <title>First Person HiLo - Auto Decision</title>
   <style>
     :root{
       --bg:#03080d;--panel:#08131e;--panel2:#0b1826;--line:#344253;
@@ -133,14 +133,15 @@
       </div>
 
       <div id="moneyArea">
+      <div class="formula" style="margin-bottom:10px">倍率 = 当選金（総当選金（総払戻し額）） ÷ 賭け金</div>
         <div class="field">
           <label>現在の賭け金 (stake)</label>
           <input id="stake" type="number" inputmode="decimal" min="0" step="0.01" value="100">
         </div>
         <div class="arrow">→</div>
         <div class="grid2">
-          <div class="field"><label class="lowtxt">LOW 払戻し総額</label><input id="lowReturn" type="number" inputmode="decimal" min="0" step="0.01" value="132"></div>
-          <div class="field"><label class="hightxt">HIGH 払戻し総額</label><input id="highReturn" type="number" inputmode="decimal" min="0" step="0.01" value="186"></div>
+          <div class="field"><label class="lowtxt">LOW 当選金（総払戻し）総額</label><input id="lowReturn" type="number" inputmode="decimal" min="0" step="0.01" value="132"><div class="formula" style="margin-top:6px">自動倍率 <strong id="lowAutoMult">—</strong></div></div>
+          <div class="field"><label class="hightxt">HIGH 当選金（総払戻し）総額</label><input id="highReturn" type="number" inputmode="decimal" min="0" step="0.01" value="186"><div class="formula" style="margin-top:6px">自動倍率 <strong id="highAutoMult">—</strong></div></div>
         </div>
       </div>
 
@@ -159,9 +160,9 @@
       
     </div>
 
-    <div class="result-title">③ 判定結果（リアルタイム）</div>
-    <div id="result" class="result waiting" aria-live="polite">
-      <div id="resultStatus" class="small">計算待ち</div>
+    <div class="result-title">③ 自動判定結果</div>
+    <div id="result" class="result waiting" aria-live="polite" aria-atomic="true">
+      <div id="resultStatus" class="small">自動判定</div>
       <div id="decision" class="choice">入力待ち</div>
       <div id="decisionReason" class="push" style="font-size:15px;margin-top:8px">倍率を入力してください</div>
       <div id="decisionAction" class="push"></div>
@@ -222,7 +223,11 @@
       <h3>② 倍率を入力</h3>
       <p>倍率を直接入力するか、賭け金とLOW/HIGHそれぞれの払戻し総額から倍率を自動計算します。</p>
       <h3>端数処理</h3>
-      <p>倍率は内部では丸めず保持し、画面表示のみ2〜4桁で丸めます。払戻し額は「切り捨て／四捨五入／切り上げ」と通貨の最小単位を選択できます。EV判定は端数処理による表示誤差を避けるため丸め前の倍率で比較します。</p>
+      <p>倍率は内部では丸めず保持し、画面表示のみ2〜4桁で丸めます。当選金（総払戻し額）は「切り捨て／四捨五入／切り上げ」と通貨の最小単位を選択できます。EV判定は端数処理による表示誤差を避けるため丸め前の倍率で比較します。</p>
+      <h3>倍率の自動入力</h3>
+      <p>「賭け金」とLOW/HIGHそれぞれの「当選金（総当選金（総払戻し額））」を入力すると、倍率を 当選金 ÷ 賭け金 で自動計算し、その倍率を期待値と判定に即時反映します。</p>
+      <h3>自動判定結果</h3>
+      <p>カード・賭け金・当選金を入力すると、倍率・期待値を計算して判定結果を自動表示します。判定ボタンを押す必要はありません。</p>
       <h3>判定結果</h3>
       <p>カードまたは倍率を変更すると、判定カードの表示・色・理由・アクションが即時に更新されます。両方がマイナス期待値ならNO BET、期待値が高い側があればその側、同じなら同率です。</p>
       <h3>期待値の見方</h3>
@@ -249,6 +254,35 @@
   let lastCalc=null;
   const $=id=>document.getElementById(id);
   const cards=$('cards');
+
+
+  function syncAutoMultipliers(){
+    const stake=val('stake');
+    const lowReturn=val('lowReturn');
+    const highReturn=val('highReturn');
+
+    const lowMult=(stake!==null && stake>0 && lowReturn!==null) ? lowReturn/stake : null;
+    const highMult=(stake!==null && stake>0 && highReturn!==null) ? highReturn/stake : null;
+
+    if(lowMult!==null && Number.isFinite(lowMult)){
+      $('lowDirect').value=lowMult.toFixed(6);
+    }else if(mode==='money'){
+      $('lowDirect').value='';
+    }
+
+    if(highMult!==null && Number.isFinite(highMult)){
+      $('highDirect').value=highMult.toFixed(6);
+    }else if(mode==='money'){
+      $('highDirect').value='';
+    }
+
+    const lowAuto=$('lowAutoMult');
+    const highAuto=$('highAutoMult');
+    if(lowAuto) lowAuto.textContent=lowMult===null?'—':lowMult.toFixed(6)+'×';
+    if(highAuto) highAuto.textContent=highMult===null?'—':highMult.toFixed(6)+'×';
+
+    return {lowMult,highMult};
+  }
 
   function val(id){
     const s=$(id).value.trim();
@@ -367,8 +401,54 @@
     return {expectedPayout, expectedProfit};
   }
 
+
+  function updateAutoDecisionLabel(decisionKey, p, lowCalc, highCalc){
+    const status=$('resultStatus');
+    const action=$('decisionAction');
+    const decision=$('decision');
+    const reason=$('decisionReason');
+
+    if(decisionKey==='LOW'){
+      if(status) status.textContent='自動判定：LOW側';
+      if(action) action.textContent='LOW側を選択';
+      if(reason && lowCalc && highCalc){
+        reason.textContent='LOW期待純利益 '+(lowCalc.expectedNet>=0?'+':'')+lowCalc.expectedNet.toFixed(6)+
+          ' / HIGH '+(highCalc.expectedNet>=0?'+':'')+highCalc.expectedNet.toFixed(6);
+      }
+    }else if(decisionKey==='HIGH'){
+      if(status) status.textContent='自動判定：HIGH側';
+      if(action) action.textContent='HIGH側を選択';
+      if(reason && lowCalc && highCalc){
+        reason.textContent='HIGH期待純利益 '+(highCalc.expectedNet>=0?'+':'')+highCalc.expectedNet.toFixed(6)+
+          ' / LOW '+(lowCalc.expectedNet>=0?'+':'')+lowCalc.expectedNet.toFixed(6);
+      }
+    }else if(decisionKey==='NO_BET'){
+      if(status) status.textContent='自動判定：NO BET';
+      if(action) action.textContent='BETしない';
+    }else if(decisionKey==='TIE'){
+      if(status) status.textContent='自動判定：同率';
+      if(action) action.textContent='期待値は同じ';
+    }else{
+      if(status) status.textContent='自動判定';
+      if(decision) decision.textContent='入力待ち';
+      if(reason) reason.textContent='カード・賭け金・当選金を入力すると自動表示';
+      if(action) action.textContent='';
+    }
+  }
+
   function render(){
     const p=probs(selected.value);
+    let lm=null;
+    let hm=null;
+    if(mode==='money'){
+      const auto=syncAutoMultipliers();
+      lm=auto.lowMult;
+      hm=auto.highMult;
+    }else{
+      lm=val('lowDirect');
+      hm=val('highDirect');
+    }
+
     const lm=getLowMult(),hm=getHighMult();
 
     $('lowHead').textContent=p.lowLabel;
@@ -497,10 +577,16 @@
       window.__hiloFlashTimer=setTimeout(()=>box.classList.remove('live-flash'),180);
     }
 
+    updateAutoDecisionLabel(decisionKey,p,lowCalc,highCalc);
     lastCalc={decision,decisionKey,lowEV:lev,highEV:hev,lowMult:lm,highMult:hm,card:selected.label};
   }
 
-  ['stake','lowReturn','highReturn','lowDirect','highDirect'].forEach(id=>$(id).addEventListener('input',render));
+  ['stake','lowReturn','highReturn'].forEach(id=>$(id).addEventListener('input',()=>{
+    if(mode==='money') syncAutoMultipliers();
+    render();
+  }));
+  ['lowDirect','highDirect'].forEach(id=>$(id).addEventListener('input',render));
+  ['stake','lowReturn','highReturn','lowDirect','highDirect'].forEach(id=>$(id).addEventListener('change',render));
 
   $('directTab').addEventListener('click',()=>{
     mode='direct';$('directTab').classList.add('active');$('moneyTab').classList.remove('active');
@@ -508,7 +594,7 @@
   });
   $('moneyTab').addEventListener('click',()=>{
     mode='money';$('moneyTab').classList.add('active');$('directTab').classList.remove('active');
-    $('moneyArea').style.display='block';$('directArea').style.display='none';render();
+    $('moneyArea').style.display='block';$('directArea').style.display='none';syncAutoMultipliers();render();
   });
 
   function readHistory(){
