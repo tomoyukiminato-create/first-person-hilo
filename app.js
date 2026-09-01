@@ -21,8 +21,17 @@ function createRankButtons(){
   });
 }
 
-function probabilityLowerSame(){ return (selectedIndex + 1) / 13; }
-function probabilityHigherSame(){ return (13 - selectedIndex) / 13; }
+// Evolution First Person Hi Lo:
+ // 各判定ごとに新しい52枚デッキから次のカードが配られる。
+ // 各ランクは4枚なので、ランク確率は常に4/52 = 1/13。
+ function probabilityLowerSame(){
+   const ranksAtOrBelow = selectedIndex + 1;
+   return (ranksAtOrBelow * 4) / 52;
+ }
+ function probabilityHigherSame(){
+   const ranksAtOrAbove = 13 - selectedIndex;
+   return (ranksAtOrAbove * 4) / 52;
+ }
 
 function signed(n, digits=3){
   return `${n >= 0 ? "+" : ""}${n.toFixed(digits)}`;
@@ -46,8 +55,12 @@ function calculate(){
   const profitHi = nextBet * Math.max(0, hi - 1);
   const ratio = currentBet > 0 ? nextBet / currentBet : 0;
 
+  const loRanks = selectedIndex + 1;
+  const hiRanks = 13 - selectedIndex;
   $("lowerProb").textContent = (pLo * 100).toFixed(2) + "%";
   $("higherProb").textContent = (pHi * 100).toFixed(2) + "%";
+  $("lowerProb").title = `${loRanks}/13 = ${loRanks*4}/52`;
+  $("higherProb").title = `${hiRanks}/13 = ${hiRanks*4}/52`;
 
   $("lowerEv").innerHTML = evHtml(evLo);
   $("higherEv").innerHTML = evHtml(evHi);
