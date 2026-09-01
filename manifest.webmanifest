@@ -3,8 +3,8 @@
   "short_name": "HiLo",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#05070a",
-  "theme_color": "#05070a",
+  "background_color": "#030609",
+  "theme_color": "#030609",
   "orientation": "portrait",
   "icons": [
     {
