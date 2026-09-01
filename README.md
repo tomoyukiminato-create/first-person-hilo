@@ -1,11 +1,6 @@
-# FIRST PERSON HiLo 判定計算PWA
+FIRST PERSON HiLo PWA
 
-写真のUIをベースにしたスマホ向けPWAです。
-
-- 2〜Aを大型ボタンで選択
-- LOWER / SAME と HIGHER / SAME を左右表示
-- 2/AではFirst Person HiLoの例外表示に自動変更
-- ゲーム画面の倍率を入力
-- 現在の賭け金→次の賭け金の倍率を自動計算
-- 的中確率・期待値・的中時の純利益を表示
-- iPhoneのホーム画面へ追加できるPWA構成
+的中確率はFirst Person HiLoのHigher or Same / Lower or Sameに合わせています。
+2,3,...,Aの13ランクを等確率とし、同じランクを含めます。
+現在カードが7ならHigher/Same=8/13=61.54%、Lower/Same=6/13=46.15%。
+期待値は入力倍率を使って P×倍率−1 としています。
