@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <meta name="theme-color" content="#050708" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="First Person HiLo" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+  <link rel="icon" href="./icons/icon-192.png" />
+  <link rel="stylesheet" href="./style.css" />
+  <title>FIRST PERSON HiLo 判定計算ツール</title>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <button class="icon-btn" id="menuBtn" aria-label="メニュー">☰</button>
+      <div class="brand">
+        <div class="brand-main">FIRST PERSON <span>HiLo</span></div>
+        <div class="brand-sub">判定計算ツール</div>
+      </div>
+      <button class="help-btn" id="helpBtn" aria-label="ヘルプ">?</button>
+    </header>
+
+    <main>
+      <section class="panel card-panel">
+        <div class="section-head">
+          <h2><span class="num">①</span> 現在のカードを選択</h2>
+          <button class="reset-btn" id="resetBtn">↻ リセット</button>
+        </div>
+        <div id="rankGrid" class="rank-grid"></div>
+        <div class="scale-wrap">
+          <span>低</span><div class="scale-line"></div><span>高</span>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2><span class="num">②</span> 掛け金・当選金を入力 <small>（倍率を自動計算）</small></h2>
+
+        <div class="payout-input-grid">
+          <label class="amount-field">
+            <span>現在の掛け金</span>
+            <div class="money-input">
+              <input id="currentBet" inputmode="decimal" type="number" min="0" step="1" value="1000" />
+              <b>円</b>
+            </div>
+          </label>
+
+          <label class="amount-field lower-field">
+            <span>LOWER 当選金</span>
+            <div class="money-input">
+              <input id="lowerPayout" inputmode="decimal" type="number" min="0" step="1" value="2100" />
+              <b>円</b>
+            </div>
+          </label>
+
+          <label class="amount-field higher-field">
+            <span>HIGHER 当選金</span>
+            <div class="money-input">
+              <input id="higherPayout" inputmode="decimal" type="number" min="0" step="1" value="1600" />
+              <b>円</b>
+            </div>
+          </label>
+        </div>
+
+        <div class="odds-grid auto-odds-grid">
+          <div class="odds-card lower">
+            <span class="odds-title">LOWER / SAME</span>
+            <small>自動計算倍率</small>
+            <div class="odds-output"><strong id="lowerOdds">2.10</strong><span>×</span></div>
+          </div>
+
+          <div class="odds-card higher">
+            <span class="odds-title">HIGHER / SAME</span>
+            <small>自動計算倍率</small>
+            <div class="odds-output"><strong id="higherOdds">1.60</strong><span>×</span></div>
+          </div>
+        </div>
+
+        <div class="formula-note">倍率 ＝ 当選金 ÷ 現在の掛け金</div>
+      </section>
+
+      <section class="panel">
+        <h2><span class="num">③</span> 次の掛け金を入力</h2>
+        <div class="next-bet-row">
+          <label>
+            <span>次に当てたときの掛け金</span>
+            <div class="money-input">
+              <input id="nextBet" inputmode="decimal" type="number" min="0" step="1" value="1500" />
+              <b>円</b>
+            </div>
+          </label>
+        </div>
+        <div class="bet-ratio">
+          <div class="coin">🪙</div>
+          <span>現在 → 次回の掛け金倍率</span>
+          <strong id="betRatio">1.50</strong><em>倍</em>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2><span class="num">④</span> 計算結果（期待値）</h2>
+        <div class="results-grid">
+          <div class="result-card lower">
+            <h3>LOWER / SAME</h3>
+            <div class="metric"><span>的中確率</span><strong id="lowerProb">46.15%</strong></div>
+            <div class="metric"><span>期待値</span><strong id="lowerEv">-0.031<br><small>(-3.08%)</small></strong></div>
+            <div class="metric"><span>純利益（的中時）</span><strong id="lowerProfit">+1,650 円</strong></div>
+          </div>
+
+          <div class="result-card higher">
+            <h3>HIGHER / SAME</h3>
+            <div class="metric"><span>的中確率</span><strong id="higherProb">61.54%</strong></div>
+            <div class="metric"><span>期待値</span><strong id="higherEv">-0.015<br><small>(-1.54%)</small></strong></div>
+            <div class="metric"><span>純利益（的中時）</span><strong id="higherProfit">+900 円</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel recommend-panel">
+        <h2><span class="num">⑤</span> 推奨される選択</h2>
+        <div id="recommendation" class="recommend higher-rec">
+          <div class="big-arrow">↗</div>
+          <div>
+            <strong id="recText">HIGHER / SAME</strong>
+            <span id="recSub">（高い または 同じ）</span>
+            <small>✓ こちらを推奨します！</small>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <button class="active"><span>▦</span>計算</button>
+      <button id="historyBtn"><span>◔</span>履歴</button>
+      <button id="statsBtn"><span>▥</span>統計</button>
+      <button id="settingsBtn"><span>⚙</span>設定</button>
+    </nav>
+  </div>
+
+  <dialog id="infoDialog">
+    <form method="dialog">
+      <h3>計算方法</h3>
+      <p>Evolution First Person Hi Loのルールに合わせ、次のカードは毎回「新しい52枚デッキ」から配られる前提です。各ランクは4/52＝1/13。「SAME」はLOWER/SAMEとHIGHER/SAMEの両方に含めます。</p>
+      <p>配当倍率 = 当選金 ÷ 現在の掛け金</p>
+      <p>期待値 = 的中確率 × 配当倍率 − 1</p>
+      <p>純利益 = 次の賭け金 ×（配当倍率 − 1）</p>
+      <p>パソコンではChrome / Edgeなどのブラウザでそのまま利用できます。対応ブラウザでは「アプリをインストール」からPWAとしても追加できます。</p>
+      <button>閉じる</button>
+    </form>
+  </dialog>
+
+  <script src="./app.js"></script>
+</body>
+</html>
