@@ -37,7 +37,13 @@
       </section>
 
       <section class="panel">
-        <h2><span class="num">②</span> 倍率を入力</h2>
+        <div class="odds-head-row">
+          <h2><span class="num">②</span> 倍率を入力</h2>
+          <label class="auto-odds-toggle">
+            <input id="autoOdds" type="checkbox" checked />
+            <span>現在の掛け金と当選金から倍率を自動入力</span>
+          </label>
+        </div>
         <div class="odds-grid">
           <label class="odds-card lower">
             <span class="odds-title">LOWER / SAME</span>
@@ -57,25 +63,45 @@
             </div>
           </label>
         </div>
+        <p class="auto-odds-note" id="autoOddsNote">自動入力ON：LOWER / HIGHERそれぞれの当選金 ÷ 現在の掛け金 を倍率欄へ反映します。</p>
       </section>
 
+      
       <section class="panel">
-        <h2><span class="num">③</span> 賭け金を入力 <small>（倍率を自動計算）</small></h2>
-        <div class="bet-row">
+        <h2><span class="num">③</span> 掛け金と当選金を入力 <small>（倍率を自動計算）</small></h2>
+
+        <div class="current-bet-single">
           <label>
-            <span>現在の賭け金</span>
-            <div class="money-input"><input id="currentBet" inputmode="numeric" type="number" min="0" step="100" value="1000" /><b>円</b></div>
-          </label>
-          <div class="arrow">→</div>
-          <label>
-            <span>次に当てたときの賭け金</span>
-            <div class="money-input"><input id="nextBet" inputmode="numeric" type="number" min="0" step="100" value="1500" /><b>円</b></div>
+            <span>現在の掛け金</span>
+            <div class="money-input">
+              <input id="currentBet" inputmode="numeric" type="number" min="0" step="100" value="1000" />
+              <b>円</b>
+            </div>
           </label>
         </div>
-        <div class="bet-ratio">
-          <div class="coin">🪙</div>
-          <span>賭け金の倍率</span>
-          <strong id="betRatio">1.50</strong><em>倍</em>
+
+        <div class="winnings-grid">
+          <label class="winnings-card lower">
+            <span>LOWER / SAME 当選金</span>
+            <div class="money-input">
+              <input id="lowerWinnings" inputmode="numeric" type="number" min="0" step="100" value="2100" />
+              <b>円</b>
+            </div>
+            <small>倍率：<strong id="lowerAutoOdds">2.10</strong>×</small>
+          </label>
+
+          <label class="winnings-card higher">
+            <span>HIGHER / SAME 当選金</span>
+            <div class="money-input">
+              <input id="higherWinnings" inputmode="numeric" type="number" min="0" step="100" value="1600" />
+              <b>円</b>
+            </div>
+            <small>倍率：<strong id="higherAutoOdds">1.60</strong>×</small>
+          </label>
+        </div>
+
+        <div class="formula-box">
+          倍率 ＝ 当選金 ÷ 現在の掛け金
         </div>
       </section>
 
@@ -124,7 +150,7 @@
       <h3>計算方法</h3>
       <p>Evolution First Person Hi Loのルールに合わせ、次のカードは毎回「新しい52枚デッキ」から配られる前提です。各ランクは4/52＝1/13。「SAME」はLOWER/SAMEとHIGHER/SAMEの両方に含めます。</p>
       <p>期待値 = 的中確率 × 配当倍率 − 1</p>
-      <p>純利益 = 次の賭け金 ×（配当倍率 − 1）</p>
+      <p>倍率 = 当選金 ÷ 現在の掛け金</p><p>純利益 = 当選金 − 現在の掛け金</p>
       <p>パソコンではChrome / Edgeなどのブラウザでそのまま利用できます。対応ブラウザでは「アプリをインストール」からPWAとしても追加できます。</p>
       <button>閉じる</button>
     </form>

@@ -243,3 +243,113 @@ dialog button{width:100%;padding:12px;border:0;border-radius:10px;background:#ff
     font-size:38px;
   }
 }
+
+
+/* v5: 掛け金倍率 → LOWER/HIGHER 自動入力 */
+.odds-head-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+  margin-bottom:8px;
+}
+.odds-head-row h2{
+  margin-bottom:0;
+}
+.auto-odds-toggle{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:14px;
+  font-weight:800;
+  color:#dce4e9;
+  cursor:pointer;
+  user-select:none;
+}
+.auto-odds-toggle input{
+  width:20px;
+  height:20px;
+  accent-color:#ffc31a;
+}
+.auto-odds-note{
+  margin:8px 0 0;
+  text-align:center;
+  font-size:13px;
+  color:#9eabb3;
+}
+@media(max-width:700px){
+  .odds-head-row{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:5px;
+  }
+  .auto-odds-toggle{
+    font-size:11px;
+  }
+  .auto-odds-toggle input{
+    width:17px;
+    height:17px;
+  }
+  .auto-odds-note{
+    font-size:10px;
+    line-height:1.35;
+  }
+}
+
+
+/* v6: 現在の掛け金 + LOWER/HIGHER当選金 → 倍率自動入力 */
+.current-bet-single{
+  max-width:420px;
+  margin:0 auto 14px;
+  text-align:center;
+}
+.current-bet-single label>span{
+  display:block;
+  margin-bottom:6px;
+  font-size:18px;
+  font-weight:800;
+}
+.winnings-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+.winnings-card{
+  border:1.5px solid;
+  border-radius:14px;
+  padding:12px;
+  background:#050a0d;
+}
+.winnings-card>span{
+  display:block;
+  text-align:center;
+  font-weight:900;
+  margin-bottom:6px;
+}
+.winnings-card>small{
+  display:block;
+  text-align:center;
+  margin-top:8px;
+  font-size:16px;
+  font-weight:800;
+}
+.winnings-card.lower>small strong{color:#369cff}
+.winnings-card.higher>small strong{color:#06e63a}
+.formula-box{
+  margin-top:12px;
+  border:1px solid #65727b;
+  border-radius:10px;
+  padding:9px 12px;
+  text-align:center;
+  color:#cbd4da;
+  font-size:14px;
+  font-weight:700;
+}
+@media(max-width:700px){
+  .winnings-grid{gap:8px}
+  .winnings-card{padding:8px 6px}
+  .winnings-card>span{font-size:12px}
+  .winnings-card>small{font-size:12px}
+  .current-bet-single label>span{font-size:14px}
+  .formula-box{font-size:11px}
+}

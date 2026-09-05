@@ -41,19 +41,40 @@ function evHtml(ev){
   return `${signed(ev,3)}<br><small>(${pct >= 0 ? "+" : ""}${pct.toFixed(2)}%)</small>`;
 }
 
+
+function syncOddsFromWinnings(){
+  const auto = $("autoOdds");
+  if (!auto || !auto.checked) return;
+
+  const bet = Math.max(0, parseFloat($("currentBet").value) || 0);
+  const lowerWinnings = Math.max(0, parseFloat($("lowerWinnings").value) || 0);
+  const higherWinnings = Math.max(0, parseFloat($("higherWinnings").value) || 0);
+
+  if (bet <= 0) return;
+
+  const lowerRatio = lowerWinnings / bet;
+  const higherRatio = higherWinnings / bet;
+
+  $("lowerOdds").value = lowerRatio.toFixed(2);
+  $("higherOdds").value = higherRatio.toFixed(2);
+
+  if ($("lowerAutoOdds")) $("lowerAutoOdds").textContent = lowerRatio.toFixed(2);
+  if ($("higherAutoOdds")) $("higherAutoOdds").textContent = higherRatio.toFixed(2);
+}
+
 function calculate(){
   const lo = Math.max(0, parseFloat($("lowerOdds").value) || 0);
   const hi = Math.max(0, parseFloat($("higherOdds").value) || 0);
   const currentBet = Math.max(0, parseFloat($("currentBet").value) || 0);
-  const nextBet = Math.max(0, parseFloat($("nextBet").value) || 0);
+  const lowerWinnings = Math.max(0, parseFloat($("lowerWinnings").value) || 0);
+  const higherWinnings = Math.max(0, parseFloat($("higherWinnings").value) || 0);
 
   const pLo = probabilityLowerSame();
   const pHi = probabilityHigherSame();
   const evLo = pLo * lo - 1;
   const evHi = pHi * hi - 1;
-  const profitLo = nextBet * Math.max(0, lo - 1);
-  const profitHi = nextBet * Math.max(0, hi - 1);
-  const ratio = currentBet > 0 ? nextBet / currentBet : 0;
+  const profitLo = Math.max(0, lowerWinnings - currentBet);
+  const profitHi = Math.max(0, higherWinnings - currentBet);
 
   const loRanks = selectedIndex + 1;
   const hiRanks = 13 - selectedIndex;
@@ -69,8 +90,7 @@ function calculate(){
 
   $("lowerProfit").textContent = "+" + fmtMoney(profitLo) + " 円";
   $("higherProfit").textContent = "+" + fmtMoney(profitHi) + " 円";
-  $("betRatio").textContent = ratio.toFixed(2);
-
+  
   const lowerWins = evLo > evHi;
   const rec = $("recommendation");
   if (lowerWins){
@@ -84,16 +104,33 @@ function calculate(){
   }
 }
 
-["lowerOdds","higherOdds","currentBet","nextBet"].forEach(id => {
+["lowerOdds","higherOdds"].forEach(id => {
   $(id).addEventListener("input", calculate);
 });
 
+["currentBet","lowerWinnings","higherWinnings"].forEach(id => {
+  $(id).addEventListener("input", () => {
+    syncOddsFromWinnings();
+    calculate();
+  });
+});
+
+if ($("autoOdds")) {
+  $("autoOdds").addEventListener("change", () => {
+    if ($("autoOdds").checked) {
+      syncOddsFromWinnings();
+    }
+    calculate();
+  });
+}
+
 $("resetBtn").addEventListener("click", () => {
   selectedIndex = 5;
-  $("lowerOdds").value = "2.10";
-  $("higherOdds").value = "1.60";
   $("currentBet").value = "1000";
-  $("nextBet").value = "1500";
+  $("lowerWinnings").value = "2100";
+  $("higherWinnings").value = "1600";
+  if ($("autoOdds")) $("autoOdds").checked = true;
+  syncOddsFromWinnings();
   createRankButtons();
   calculate();
 });
@@ -105,6 +142,7 @@ $("statsBtn").addEventListener("click", () => alert("統計機能は次版で追
 $("settingsBtn").addEventListener("click", () => $("infoDialog").showModal());
 
 createRankButtons();
+syncOddsFromWinnings();
 calculate();
 
 if ("serviceWorker" in navigator) {
