@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#050708">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FIRST PERSON HiLo">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>FIRST PERSON HiLo — 判定計算ツール</title>
+<style>
+:root{
+  --bg:#050708;--panel:#0c1216;--line:#27343e;--text:#f4f7f9;--muted:#aeb8bf;
+  --green:#12f04a;--blue:#2798ff;--yellow:#ffd000;--red:#ff2634;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif}
+body{min-height:100vh;padding-bottom:86px}
+button,input{font:inherit}
+button{color:inherit}
+.top{
+  height:88px;padding:17px 22px 8px;display:grid;grid-template-columns:50px 1fr 50px;
+  align-items:center;position:sticky;top:0;z-index:10;background:rgba(3,5,6,.94);backdrop-filter:blur(12px)
+}
+.iconBtn{border:0;background:none;font-size:31px;line-height:1;cursor:pointer}
+.brand{text-align:center;font-weight:900;font-size:27px;letter-spacing:-.5px}
+.brand .hi{color:var(--yellow)}
+.subtitle{text-align:center;color:#d1d6da;font-size:14px;margin-top:-1px}
+.help{color:var(--yellow);font-size:28px}
+main{width:min(100%,1000px);margin:0 auto;padding:0 22px}
+.panel{
+  background:linear-gradient(135deg,#0d1418,#080d10);border:1.5px solid #33414c;border-radius:18px;
+  padding:12px 18px;margin:10px 0;box-shadow:0 5px 20px rgba(0,0,0,.22)
+}
+.panelTitle{font-weight:800;font-size:21px;margin:0 0 10px;display:flex;justify-content:space-between;align-items:center}
+.reset{background:none;border:0;color:#e9eef1;font-size:16px;cursor:pointer}
+.cards{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.card{
+  min-height:64px;border:1.5px solid #3c4a55;border-radius:11px;background:linear-gradient(#1b2227,#0c1115);
+  font-size:34px;font-weight:900;cursor:pointer;transition:.12s;box-shadow:inset 0 1px 0 #303941
+}
+.card:active{transform:scale(.96)}
+.card.selected{background:linear-gradient(#ffd91c,#f0a800);color:#080808;border-color:#ffe76b;box-shadow:0 0 16px rgba(255,208,0,.35)}
+.scale{display:flex;align-items:center;gap:12px;margin-top:8px;font-weight:800;font-size:16px}
+.scale .bar{height:6px;flex:1;border-radius:99px;background:linear-gradient(90deg,#1477ff,#00d6a5,#66dc12,#ffd400,#ff9a00,#ff1824)}
+.odds{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.odd{
+  border-radius:15px;padding:12px 15px;border:2px solid;min-height:136px;position:relative;background:#071016
+}
+.odd.low{border-color:var(--blue);box-shadow:inset 0 0 25px rgba(39,152,255,.07)}
+.odd.high{border-color:#10c83c;box-shadow:inset 0 0 25px rgba(18,240,74,.07)}
+.oddTitle{text-align:center;font-size:20px;font-weight:900}
+.low .oddTitle{color:var(--blue)} .high .oddTitle{color:var(--green)}
+.oddSub{text-align:center;font-size:14px;font-weight:800;margin-top:3px}
+.multWrap{display:flex;align-items:center;gap:8px;margin-top:10px}
+.mult{
+  width:100%;background:#05090b;border:0;outline:0;text-align:center;font-size:36px;font-weight:900;
+  padding:4px;border-radius:8px;color:white
+}
+.low .mult{border-bottom:1px solid #236da8}.high .mult{border-bottom:1px solid #159d38}
+.clear{border:0;background:none;color:#aeb8bf;font-size:24px;cursor:pointer}
+.betrow{display:grid;grid-template-columns:1fr 42px 1fr;align-items:end;gap:10px}
+.field label{display:block;text-align:center;font-size:14px;font-weight:800;margin-bottom:5px}
+.field input{
+  width:100%;height:50px;background:#080d10;border:1.5px solid #3d4a55;border-radius:10px;color:white;
+  text-align:center;font-size:24px;font-weight:800;outline:none
+}
+.arrow{text-align:center;font-size:43px;padding-bottom:0}
+.multResult{
+  margin-top:10px;border:1.5px solid #e4af12;border-radius:11px;padding:7px 12px;
+  display:grid;grid-template-columns:90px 1fr auto;align-items:center;background:linear-gradient(90deg,#141006,#090b0c)
+}
+.coin{font-size:36px;text-align:center}.mrLabel{font-weight:800;font-size:17px}.mrValue{font-size:40px;font-weight:900;color:var(--yellow)}.mrUnit{color:var(--yellow);font-weight:800;font-size:17px}
+.results{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.result{border:1.5px solid;border-radius:11px;overflow:hidden}
+.result.low{border-color:#1768a9}.result.high{border-color:#168c38}
+.rtitle{text-align:center;font-size:19px;font-weight:900;padding:7px;border-bottom:1px solid #26323a}
+.low .rtitle{color:var(--blue)} .high .rtitle{color:var(--green)}
+.row{display:grid;grid-template-columns:1fr auto;gap:8px;padding:7px 12px;border-bottom:1px solid #1f2a31;font-size:15px}
+.row:last-child{border-bottom:0}.val{font-size:25px;font-weight:900}
+.low .val{color:#369eff}.high .val{color:#13ed47}
+.neg{color:#ff2d3d!important}.pos{color:#16ef4b!important}
+.recommend{
+  border:2px solid #11d943;border-radius:12px;min-height:124px;background:linear-gradient(110deg,#003b09,#09a21d,#00450b);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden
+}
+.recommend .big{font-size:42px;font-weight:950;letter-spacing:-1px}
+.recommend .sub{font-weight:800;font-size:16px;margin-top:0}
+.badge{background:#fff;color:#111;border-radius:30px;padding:6px 28px;margin-top:8px;font-weight:900;font-size:16px}
+.note{color:#8f9aa1;font-size:12px;line-height:1.5;margin:10px 2px}
+.nav{
+  position:fixed;bottom:0;left:0;right:0;height:76px;background:rgba(5,8,10,.96);border-top:1px solid #263139;
+  display:grid;grid-template-columns:repeat(4,1fr);z-index:20;padding-bottom:env(safe-area-inset-bottom)
+}
+.nav button{border:0;background:none;color:#aab3b9;font-size:12px;font-weight:800}.nav .active{color:var(--yellow)}
+.nav .ni{font-size:25px;display:block;margin-bottom:1px}
+@media(max-width:560px){
+  main{padding:0 14px}.top{padding-left:14px;padding-right:14px}.brand{font-size:24px}
+  .panel{padding:11px 12px;border-radius:15px}.panelTitle{font-size:19px}
+  .cards{gap:6px}.card{min-height:58px;font-size:29px}
+  .odds,.results{gap:12px}.odd{min-height:126px;padding:10px 8px}.oddTitle{font-size:17px}.oddSub{font-size:12px}.mult{font-size:32px}
+  .betrow{gap:6px}.field input{height:48px;font-size:21px}.arrow{font-size:36px}
+  .multResult{grid-template-columns:54px 1fr auto}.coin{font-size:29px}.mrLabel{font-size:14px}.mrValue{font-size:34px}
+  .row{padding:6px 8px;font-size:13px}.val{font-size:21px}.rtitle{font-size:16px}
+  .recommend{min-height:112px}.recommend .big{font-size:31px}.recommend .sub{font-size:13px}.badge{font-size:14px;padding:5px 20px}
+}
+@media(max-width:370px){.card{min-height:52px;font-size:25px}.oddTitle{font-size:15px}.oddSub{font-size:11px}.brand{font-size:21px}}
+</style>
+</head>
+<body>
+<header class="top">
+  <button class="iconBtn" aria-label="menu">☰</button>
+  <div><div class="brand">FIRST PERSON <span class="hi">HiLo</span></div><div class="subtitle">判定計算ツール</div></div>
+  <button class="iconBtn help" aria-label="help">?</button>
+</header>
+
+<main>
+<section class="panel">
+  <div class="panelTitle"><span>① 現在のカードを選択</span><button class="reset" id="reset">↻ リセット</button></div>
+  <div class="cards" id="cards"></div>
+  <div class="scale"><span>低</span><div class="bar"></div><span>高</span></div>
+</section>
+
+<section class="panel">
+  <div class="panelTitle">② 倍率を入力</div>
+  <div class="odds">
+    <div class="odd low">
+      <div class="oddTitle" id="lowTitle">LOWER / SAME</div><div class="oddSub" id="lowSub">（低い または 同じ）</div>
+      <div class="multWrap"><input id="lowMult" class="mult" inputmode="decimal" value="2.10"><button class="clear" data-clear="lowMult">×</button></div>
+    </div>
+    <div class="odd high">
+      <div class="oddTitle" id="highTitle">HIGHER / SAME</div><div class="oddSub" id="highSub">（高い または 同じ）</div>
+      <div class="multWrap"><input id="highMult" class="mult" inputmode="decimal" value="1.60"><button class="clear" data-clear="highMult">×</button></div>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panelTitle">③ 賭け金を入力（倍率を自動計算）</div>
+  <div class="betrow">
+    <div class="field"><label>現在の賭け金</label><input id="bet" inputmode="numeric" value="1000"></div>
+    <div class="arrow">→</div>
+    <div class="field"><label>次に当てたときの賭け金</label><input id="nextBet" inputmode="numeric" value="1500"></div>
+  </div>
+  <div class="multResult"><div class="coin">🪙</div><div class="mrLabel">賭け金の倍率</div><div><span id="betRatio" class="mrValue">1.50</span> <span class="mrUnit">倍</span></div></div>
+</section>
+
+<section class="panel">
+  <div class="panelTitle">④ 計算結果（期待値）</div>
+  <div class="results">
+    <div class="result low"><div class="rtitle" id="lowResultTitle">LOWER / SAME</div>
+      <div class="row"><span>的中確率</span><span class="val" id="lowProb">47.06%</span></div>
+      <div class="row"><span>期待値</span><span><span class="val" id="lowEV">-0.012</span><br><span class="val" id="lowEVpct">(-1.18%)</span></span></div>
+      <div class="row"><span>純利益（的中時）</span><span class="val" id="lowProfit">+1,100 円</span></div>
+    </div>
+    <div class="result high"><div class="rtitle" id="highResultTitle">HIGHER / SAME</div>
+      <div class="row"><span>的中確率</span><span class="val" id="highProb">52.94%</span></div>
+      <div class="row"><span>期待値</span><span><span class="val" id="highEV">-0.153</span><br><span class="val" id="highEVpct">(-15.29%)</span></span></div>
+      <div class="row"><span>純利益（的中時）</span><span class="val" id="highProfit">+600 円</span></div>
+    </div>
+  </div>
+  <div class="note">確率は「標準52枚デッキから現在のカード1枚を除いた51枚」を基準に、同じランクの残り3枚も含めて計算します。First Person HiLoは各新カードを新しいデッキから引く仕様です。<br>※倍率はゲーム画面に表示された値を入力してください。</div>
+</section>
+
+<section class="panel">
+  <div class="panelTitle">⑤ 推奨される選択</div>
+  <div class="recommend" id="recommend">
+    <div class="big" id="recommendBig">HIGHER / SAME</div>
+    <div class="sub" id="recommendSub">（高い または 同じ）</div>
+    <div class="badge">✓ こちらを推奨します！</div>
+  </div>
+</section>
+</main>
+
+<nav class="nav">
+  <button class="active"><span class="ni">▣</span>計算</button>
+  <button><span class="ni">◷</span>履歴</button>
+  <button><span class="ni">▥</span>統計</button>
+  <button><span class="ni">⚙</span>設定</button>
+</nav>
+
+<script>
+const ranks=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+const cards=document.getElementById('cards');
+let current=7;
+
+ranks.forEach((r,i)=>{
+  const b=document.createElement('button');
+  b.className='card'; b.textContent=r; b.dataset.i=i;
+  b.onclick=()=>{current=i; render();};
+  cards.appendChild(b);
+});
+
+function n(v){return Number(String(v).replace(/,/g,''))||0}
+function fmtMoney(v){return Math.round(v).toLocaleString('ja-JP')}
+function probability(i){
+  // Fresh standard 52-card deck; the current visible card is removed.
+  // Higher/Same = all ranks above + the remaining 3 cards of same rank.
+  const higher=12-i;
+  const lower=i;
+  return {
+    low: (lower*4+3)/51,
+    high:(higher*4+3)/51
+  };
+}
+function labels(i){
+  if(i===0) return {low:['SAME','（同じ）'], high:['HIGHER','（高い）']};
+  if(i===12) return {low:['LOWER','（低い）'], high:['SAME','（同じ）']};
+  return {low:['LOWER / SAME','（低い または 同じ）'],high:['HIGHER / SAME','（高い または 同じ）']};
+}
+function render(){
+  [...cards.children].forEach((b,i)=>b.classList.toggle('selected',i===current));
+  const p=probability(current), l=labels(current);
+  document.getElementById('lowTitle').textContent=l.low[0];
+  document.getElementById('lowSub').textContent=l.low[1];
+  document.getElementById('highTitle').textContent=l.high[0];
+  document.getElementById('highSub').textContent=l.high[1];
+  document.getElementById('lowResultTitle').textContent=l.low[0];
+  document.getElementById('highResultTitle').textContent=l.high[0];
+  document.getElementById('lowProb').textContent=(p.low*100).toFixed(2)+'%';
+  document.getElementById('highProb').textContent=(p.high*100).toFixed(2)+'%';
+  calc();
+}
+function calc(){
+  const p=probability(current), lowM=n(document.getElementById('lowMult').value), highM=n(document.getElementById('highMult').value);
+  const bet=n(document.getElementById('bet').value), next=n(document.getElementById('nextBet').value);
+  const ratio=bet?next/bet:0;
+  document.getElementById('betRatio').textContent=ratio.toFixed(2);
+  const lowEV=p.low*lowM-1, highEV=p.high*highM-1;
+  document.getElementById('lowEV').textContent=(lowEV>=0?'+':'')+lowEV.toFixed(3);
+  document.getElementById('highEV').textContent=(highEV>=0?'+':'')+highEV.toFixed(3);
+  document.getElementById('lowEVpct').textContent='('+(lowEV*100>=0?'+':'')+(lowEV*100).toFixed(2)+'%)';
+  document.getElementById('highEVpct').textContent='('+(highEV*100>=0?'+':'')+(highEV*100).toFixed(2)+'%)';
+  document.getElementById('lowEV').className='val '+(lowEV>=0?'pos':'neg');
+  document.getElementById('highEV').className='val '+(highEV>=0?'pos':'neg');
+  document.getElementById('lowEVpct').className='val '+(lowEV>=0?'pos':'neg');
+  document.getElementById('highEVpct').className='val '+(highEV>=0?'pos':'neg');
+  document.getElementById('lowProfit').textContent=(lowM&&bet? '+'+fmtMoney(bet*(lowM-1)):'—')+' 円';
+  document.getElementById('highProfit').textContent=(highM&&bet? '+'+fmtMoney(bet*(highM-1)):'—')+' 円';
+
+  let rec, sub;
+  if(lowEV>highEV){rec=document.getElementById('lowTitle').textContent;sub=document.getElementById('lowSub').textContent}
+  else {rec=document.getElementById('highTitle').textContent;sub=document.getElementById('highSub').textContent}
+  document.getElementById('recommendBig').textContent=rec;
+  document.getElementById('recommendSub').textContent=sub;
+}
+document.querySelectorAll('input').forEach(x=>x.addEventListener('input',calc));
+document.querySelectorAll('[data-clear]').forEach(x=>x.onclick=()=>{document.getElementById(x.dataset.clear).value='';calc()});
+document.getElementById('reset').onclick=()=>{
+ current=5; document.getElementById('lowMult').value='2.10'; document.getElementById('highMult').value='1.60';
+ document.getElementById('bet').value='1000';document.getElementById('nextBet').value='1500';render();
+};
+if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
+render();
+</script>
+</body>
+</html>
