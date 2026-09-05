@@ -18,10 +18,16 @@ function makeRanks(){
 }
 
 function optionModel(){
-  // Evolution First Person HiLo exact option structure:
-  // 2  : SAME / HIGHER
-  // 3-K: LOWER OR SAME / HIGHER OR SAME
-  // A  : LOWER / SAME
+  // Evolution First Person HiLo:
+  // each new card is dealt from a NEW 52-card deck.
+  //
+  // Current 2:
+  //   SAME   = four 2s = 4/52 = 1/13 = 7.69%
+  //   HIGHER = ranks 3..A (12 ranks x 4) = 48/52 = 12/13 = 92.31%
+  //
+  // Current A:
+  //   LOWER  = ranks 2..K (12 ranks x 4) = 48/52 = 12/13 = 92.31%
+  //   SAME   = four Aces = 4/52 = 1/13 = 7.69%
   if(selectedIndex === 0){
     return {
       leftName:"SAME", leftSub:"同じ",
@@ -36,6 +42,8 @@ function optionModel(){
       leftCards:48, rightCards:4
     };
   }
+
+  // 3 through K: equality is included in BOTH offered choices.
   return {
     leftName:"LOWER / SAME", leftSub:"低い または 同じ",
     rightName:"HIGHER / SAME", rightSub:"高い または 同じ",
