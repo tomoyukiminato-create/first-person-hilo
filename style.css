@@ -1,0 +1,37 @@
+
+:root{--bg:#020608;--panel:#071015;--line:#314754;--text:#f7f9fb;--muted:#a8b3bb;--gold:#ffc21a;--blue:#2a9dff;--green:#00ec48}
+*{box-sizing:border-box}html,body{margin:0;background:#000;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic","Hiragino Kaku Gothic ProN",sans-serif}
+body{min-height:100vh;background:linear-gradient(180deg,#010303 0,#000 100%)}button,input{font:inherit}
+.app-shell{width:min(100%,610px);margin:0 auto;background:linear-gradient(180deg,#061017,#020607);min-height:100vh;padding:76px 14px 20px}
+.topbar{display:grid;grid-template-columns:56px 1fr 56px;align-items:center;margin-bottom:24px}.menu-btn{border:0;background:transparent;color:#fff;font-size:31px}
+.help-btn{width:48px;height:48px;justify-self:end;border-radius:50%;background:transparent;border:3px solid var(--gold);color:var(--gold);font-size:31px;font-weight:900}
+.brand{text-align:center}.brand-main{font-size:25px;font-weight:900}.brand-main span{color:var(--gold)}.brand-sub{font-size:15px;font-weight:800;margin-top:3px}
+.main{display:grid;gap:12px}.panel{border:1.5px solid var(--line);border-radius:17px;background:linear-gradient(160deg,rgba(8,18,24,.98),rgba(3,9,12,.98));padding:13px}
+h2{margin:0 0 11px;font-size:20px;font-weight:900}h2 span{font-size:22px}h2 small{font-size:15px}.section-title-row{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.reset-btn{border:0;background:transparent;color:#fff;font-weight:800;font-size:16px}.rank-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.rank-btn{height:64px;border:1.5px solid #40515b;border-radius:10px;background:linear-gradient(#1d272d,#0b1216);color:#fff;font-size:31px;font-weight:900}
+.rank-btn.selected{background:linear-gradient(#e0a512,#ad7800);border-color:#ffd331;box-shadow:0 0 16px rgba(255,194,26,.65),inset 0 0 10px rgba(255,255,255,.14)}
+.low-high{display:grid;grid-template-columns:auto 1fr auto;gap:13px;align-items:center;margin-top:12px;font-weight:800}
+.gradient-line{height:7px;border-radius:99px;background:linear-gradient(90deg,#188ff5 0,#00c8aa 30%,#a8e900 48%,#ffd500 61%,#ff8a00 77%,#ff1d2b 100%);position:relative}
+.gradient-line i{position:absolute;right:0;top:-6px;width:17px;height:17px;border-top:3px solid #ff1d2b;border-right:3px solid #ff1d2b;transform:rotate(45deg)}
+.odds-grid,.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.odds-box,.result-card{border:1.7px solid;border-radius:14px;background:#04080b}
+.low-box{border-color:#1e91ff!important}.high-box{border-color:#00d642!important}.odds-box{text-align:center;padding:12px 8px 10px}
+.odds-name{font-size:18px;font-weight:900}.low-box .odds-name,.low-box h3,.low-box .row strong{color:var(--blue)}.high-box .odds-name,.high-box h3,.high-box .row strong{color:var(--green)}
+.odds-sub{font-size:12px;font-weight:700}.odds-value{display:grid;grid-template-columns:1fr auto;align-items:center;margin-top:7px}.odds-value strong{font-size:39px}.odds-value b{font-size:24px}
+.stake-center{max-width:390px;margin:0 auto 14px;text-align:center}.stake-center label,.payout-field>span{display:block;font-size:13px;font-weight:800;margin-bottom:6px}
+.money-input{display:grid;grid-template-columns:1fr 34px;align-items:center;border:1.4px solid #394d58;border-radius:10px;background:#04090c;overflow:hidden}
+.money-input input{height:56px;border:0;outline:0;background:transparent;color:#fff;text-align:center;font-size:28px;font-weight:900;width:100%}.money-input b{font-size:15px}
+.payout-grid{display:grid;grid-template-columns:1fr 48px 1fr;align-items:end;gap:6px}.swap-icon{font-size:38px;text-align:center;padding-bottom:8px}
+.payout-ratio{display:grid;grid-template-columns:auto 1fr 1fr;gap:10px;align-items:center;border:1.5px solid #f5aa14;border-radius:12px;background:#110b00;padding:11px 12px;margin-top:12px;color:#ffbd16;font-size:18px;font-weight:900}
+.payout-ratio .ratio-label{color:#fff;font-size:13px}.payout-ratio strong{font-size:31px}.result-card{padding:10px 9px}.result-card h3{text-align:center;margin:0 0 7px;font-size:17px}
+.row{display:grid;grid-template-columns:1fr 1.15fr;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,.14);padding:8px 0;font-size:14px;font-weight:800}
+.row:last-child{border-bottom:0}.row strong{text-align:right;font-size:22px}.row strong small{font-size:16px}.row:nth-child(3) strong{font-size:17px;color:#fff!important}
+.positive{color:var(--green)!important}.negative{color:#ff3649!important}
+.recommend{border:1.7px solid #00d942;border-radius:13px;background:linear-gradient(180deg,#078320,#006b16);text-align:center;padding:18px 10px 11px}
+.recommend strong{display:block;font-size:32px}.recommend span{display:block;font-size:13px;font-weight:800}.recommend em{display:inline-block;background:#fff;color:#1b2226;font-style:normal;font-weight:900;border-radius:99px;padding:4px 28px;margin-top:8px;font-size:13px}
+.note{font-size:12px;line-height:1.65;color:#9ca8b0;margin:10px 2px 0}
+dialog{border:1px solid #445a66;border-radius:16px;background:#081116;color:#fff;max-width:520px;width:calc(100% - 32px)}dialog::backdrop{background:rgba(0,0,0,.75)}
+dialog button{width:100%;padding:12px;border:0;border-radius:10px;background:var(--gold);font-weight:900}.prob-table-wrap{overflow:auto;margin:10px 0}.prob-table{border-collapse:collapse;width:100%;font-size:12px;white-space:nowrap}
+.prob-table th,.prob-table td{border:1px solid #334954;padding:6px;text-align:center}.prob-table th{background:#111d23}
+@media(max-width:420px){.payout-ratio{grid-template-columns:1fr 1fr}.ratio-label{grid-column:1/-1}.result-grid{grid-template-columns:1fr}.odds-value strong{font-size:34px}}
+@media(min-width:900px){.app-shell{width:min(100%,1120px);padding:38px 24px 28px}.main{grid-template-columns:1fr 1fr;gap:14px}.panel:first-child{grid-column:1/-1}.panel:nth-child(4),.panel:nth-child(5){grid-column:1/-1}.rank-grid{grid-template-columns:repeat(13,1fr)}.rank-btn{height:58px;font-size:25px}.recommend{max-width:760px;margin:auto}}
