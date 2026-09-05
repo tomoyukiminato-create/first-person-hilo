@@ -17,12 +17,34 @@ function makeRanks(){
   });
 }
 
-function pLowerSame(){
-  return ((selectedIndex+1)*4)/52;
+function optionModel(){
+  // Evolution First Person HiLo exact option structure:
+  // 2  : SAME / HIGHER
+  // 3-K: LOWER OR SAME / HIGHER OR SAME
+  // A  : LOWER / SAME
+  if(selectedIndex === 0){
+    return {
+      leftName:"SAME", leftSub:"同じ",
+      rightName:"HIGHER", rightSub:"高い",
+      leftCards:4, rightCards:48
+    };
+  }
+  if(selectedIndex === 12){
+    return {
+      leftName:"LOWER", leftSub:"低い",
+      rightName:"SAME", rightSub:"同じ",
+      leftCards:48, rightCards:4
+    };
+  }
+  return {
+    leftName:"LOWER / SAME", leftSub:"低い または 同じ",
+    rightName:"HIGHER / SAME", rightSub:"高い または 同じ",
+    leftCards:(selectedIndex+1)*4,
+    rightCards:(13-selectedIndex)*4
+  };
 }
-function pHigherSame(){
-  return ((13-selectedIndex)*4)/52;
-}
+function pLowerSame(){ return optionModel().leftCards/52; }
+function pHigherSame(){ return optionModel().rightCards/52; }
 function reducedFraction(num, den){
   const gcd=(a,b)=>b?gcd(b,a%b):a;
   const g=gcd(num,den);
@@ -44,16 +66,28 @@ function calculate(){
   $("ratioLow").textContent = loOdds.toFixed(2);
   $("ratioHigh").textContent = hiOdds.toFixed(2);
 
-  const plo = pLowerSame();
-  const phi = pHigherSame();
-  const loNum=(selectedIndex+1)*4;
-  const hiNum=(13-selectedIndex)*4;
+  const m = optionModel();
+
+  // Dynamic labels are important for 2 and A.
+  $("lowerOddsName").textContent = m.leftName;
+  $("lowerOddsSub").textContent = m.leftSub;
+  $("higherOddsName").textContent = m.rightName;
+  $("higherOddsSub").textContent = m.rightSub;
+  $("lowerPayoutLabel").textContent = `${m.leftName} 当選金`;
+  $("higherPayoutLabel").textContent = `${m.rightName} 当選金`;
+  $("lowerResultName").textContent = m.leftName;
+  $("higherResultName").textContent = m.rightName;
+
+  const plo = m.leftCards/52;
+  const phi = m.rightCards/52;
 
   $("lowerProb").textContent=(plo*100).toFixed(2)+"%";
   $("higherProb").textContent=(phi*100).toFixed(2)+"%";
-  $("lowerFrac").textContent=`${loNum}/52 = ${reducedFraction(loNum,52)}`;
-  $("higherFrac").textContent=`${hiNum}/52 = ${reducedFraction(hiNum,52)}`;
+  $("lowerFrac").textContent=`${m.leftCards}/52 = ${reducedFraction(m.leftCards,52)}`;
+  $("higherFrac").textContent=`${m.rightCards}/52 = ${reducedFraction(m.rightCards,52)}`;
 
+  // Net expected return per 1 unit staked:
+  // EV = P(win) * gross payout multiplier - 1
   const evLo=plo*loOdds-1;
   const evHi=phi*hiOdds-1;
 
@@ -67,10 +101,10 @@ function calculate(){
   $("lowerProfit").textContent=(loProfit>=0?"+":"")+money(loProfit)+"円";
   $("higherProfit").textContent=(hiProfit>=0?"+":"")+money(hiProfit)+"円";
 
-  const chooseLow = evLo >= evHi;
-  $("recText").textContent = chooseLow ? "LOWER / SAME" : "HIGHER / SAME";
-  $("recSub").textContent = chooseLow ? "低い または 同じ" : "高い または 同じ";
-  $("recommendation").className = "recommend " + (chooseLow ? "low-rec":"high-rec");
+  const chooseLeft = evLo >= evHi;
+  $("recText").textContent = chooseLeft ? m.leftName : m.rightName;
+  $("recSub").textContent = chooseLeft ? m.leftSub : m.rightSub;
+  $("recommendation").className = "recommend " + (chooseLeft ? "low-rec":"high-rec");
 }
 ["stake","lowerPayout","higherPayout"].forEach(id=>$(id).addEventListener("input",calculate));
 $("resetBtn").onclick=()=>{

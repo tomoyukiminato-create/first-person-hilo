@@ -42,13 +42,13 @@
       <h2><span>②</span> 倍率 <small>（当選金から自動計算）</small></h2>
       <div class="odds-grid">
         <div class="odds-box low-box">
-          <div class="odds-name">LOWER / SAME</div>
-          <div class="odds-sub">低い または 同じ</div>
+          <div class="odds-name" id="lowerOddsName">LOWER / SAME</div>
+          <div class="odds-sub" id="lowerOddsSub">低い または 同じ</div>
           <div class="odds-value"><strong id="lowerOdds">2.62</strong><b>×</b></div>
         </div>
         <div class="odds-box high-box">
-          <div class="odds-name">HIGHER / SAME</div>
-          <div class="odds-sub">高い または 同じ</div>
+          <div class="odds-name" id="higherOddsName">HIGHER / SAME</div>
+          <div class="odds-sub" id="higherOddsSub">高い または 同じ</div>
           <div class="odds-value"><strong id="higherOdds">1.45</strong><b>×</b></div>
         </div>
       </div>
@@ -67,7 +67,7 @@
 
       <div class="payout-grid">
         <label class="payout-field">
-          <span>LOWER / SAME 当選金</span>
+          <span id="lowerPayoutLabel">LOWER / SAME 当選金</span>
           <div class="money-input">
             <input id="lowerPayout" type="number" inputmode="decimal" min="0" step="1" value="123">
             <b>円</b>
@@ -75,7 +75,7 @@
         </label>
         <div class="swap-icon">⇄</div>
         <label class="payout-field">
-          <span>HIGHER / SAME 当選金</span>
+          <span id="higherPayoutLabel">HIGHER / SAME 当選金</span>
           <div class="money-input">
             <input id="higherPayout" type="number" inputmode="decimal" min="0" step="1" value="68">
             <b>円</b>
@@ -94,14 +94,14 @@
       <h2><span>④</span> 計算結果（期待値）</h2>
       <div class="result-grid">
         <div class="result-card low-box">
-          <h3>LOWER / SAME</h3>
+          <h3 id="lowerResultName">LOWER / SAME</h3>
           <div class="row"><span>的中確率</span><strong id="lowerProb">38.46%</strong></div>
           <div class="row"><span>正確な比率</span><strong id="lowerFrac">20/52 = 5/13</strong></div>
           <div class="row"><span>期待値</span><strong id="lowerEv">+0.007<br><small>(+0.65%)</small></strong></div>
           <div class="row"><span>純利益（的中時）</span><strong id="lowerProfit">76円</strong></div>
         </div>
         <div class="result-card high-box">
-          <h3>HIGHER / SAME</h3>
+          <h3 id="higherResultName">HIGHER / SAME</h3>
           <div class="row"><span>的中確率</span><strong id="higherProb">69.23%</strong></div>
           <div class="row"><span>正確な比率</span><strong id="higherFrac">36/52 = 9/13</strong></div>
           <div class="row"><span>期待値</span><strong id="higherEv">+0.002<br><small>(+0.16%)</small></strong></div>
@@ -118,9 +118,7 @@
         <em>こちらを推奨します！</em>
       </div>
       <p class="note">
-        毎回新しい52枚デッキから配られる前提で計算。順位は 2＜…＜K＜A。
-        通常は同値を両側に含み、2とAでは同値が独立した選択肢です。
-        期待値＝的中確率×払戻倍率−1。
+        Evolution First Person HiLo のルールに合わせ、次のカードは毎回新しい52枚デッキから配られる前提で計算します。順位は 2＜…＜K＜A。3〜Kでは「LOWER / SAME」「HIGHER / SAME」、2では「SAME」「HIGHER」、Aでは「LOWER」「SAME」として正確に判定します。期待値＝的中確率×払戻倍率−1。
       </p>
     </section>
   </main>
