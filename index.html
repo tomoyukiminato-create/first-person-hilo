@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050708">
+<title>FIRST PERSON HiLo 判定計算ツール</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  --bg:#020405; --panel:#071014; --panel2:#0b151a; --line:#3c4a52; --text:#f5f7f9;
+  --muted:#aeb7bd; --gold:#ffc928; --blue:#2692ff; --green:#21e35f; --red:#ff2f43;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#000;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 50% -10%,rgba(255,255,255,.05),transparent 32%),
+    linear-gradient(180deg,#000 0%,#020507 58%,#000 100%);
+  padding:env(safe-area-inset-top) 12px calc(72px + env(safe-area-inset-bottom));
+}
+.app{max-width:760px;margin:0 auto}
+.topbar{
+  position:relative;display:flex;align-items:center;justify-content:center;padding:10px 4px 12px;
+}
+.menu,.help{position:absolute;top:10px;border:0;background:none;color:#fff;font-size:28px}
+.menu{left:0}.help{right:0;color:var(--gold);font-size:30px}
+.title{text-align:center;font-weight:900;font-size:25px;line-height:1.05;letter-spacing:.5px}
+.title .hi{color:var(--gold)}
+.subtitle{font-size:13px;font-weight:700;margin-top:4px;letter-spacing:.7px}
+
+.section{
+  border:1px solid #44515a;border-radius:15px;padding:12px;margin:0 0 10px;
+  background:
+    linear-gradient(180deg,rgba(10,18,22,.96),rgba(4,9,12,.96));
+  box-shadow:inset 0 0 22px rgba(255,255,255,.02),0 5px 20px rgba(0,0,0,.45);
+}
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-size:17px;font-weight:850}
+.step{display:inline-flex;align-items:center;justify-content:center;border:2px solid #fff;border-radius:999px;width:23px;height:23px;margin-right:8px;font-size:13px}
+.reset{border:0;background:none;color:#fff;font-size:14px}
+
+.cards{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.cardbtn{
+  border:1px solid #46535b;border-radius:10px;color:#fff;font-size:26px;font-weight:850;
+  min-height:54px;background:linear-gradient(180deg,#151a1d,#080c0f);box-shadow:inset 0 1px 5px rgba(255,255,255,.05)
+}
+.cardbtn.active{
+  border-color:#ffcf3a;background:linear-gradient(180deg,#f1b921,#ba7900);
+  box-shadow:0 0 14px rgba(255,189,28,.68),inset 0 1px 0 rgba(255,255,255,.45)
+}
+.scale{display:flex;align-items:center;gap:10px;margin:10px 3px 0;font-weight:800}
+.scale-line{height:7px;flex:1;border-radius:999px;background:linear-gradient(90deg,#1587ff 0%,#1fbf74 52%,#ffd21f 75%,#ff2020 100%);position:relative}
+.scale-line:after{content:"➜";position:absolute;right:-5px;top:-17px;color:red;font-size:32px}
+
+.odds-grid,.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.odds-box{
+  border-radius:12px;padding:10px 11px;text-align:center;background:#02070b;border:1px solid;
+  box-shadow:inset 0 0 20px rgba(255,255,255,.02)
+}
+.odds-box.blue{border-color:var(--blue);box-shadow:0 0 12px rgba(38,146,255,.14),inset 0 0 18px rgba(38,146,255,.08)}
+.odds-box.green{border-color:var(--green);box-shadow:0 0 12px rgba(33,227,95,.12),inset 0 0 18px rgba(33,227,95,.07)}
+.odds-title{font-size:18px;font-weight:900;letter-spacing:.8px}
+.blue .odds-title{color:var(--blue)} .green .odds-title{color:var(--green)}
+.odds-sub{font-size:12px;font-weight:700;opacity:.9;margin:2px 0 8px}
+.odds-inputrow{display:flex;align-items:center;justify-content:center;gap:8px}
+.odds-input{
+  width:128px;border:0;background:transparent;color:#fff;font-size:35px;font-weight:800;text-align:center;outline:none
+}
+.times{font-size:25px}
+
+.stake-row{display:grid;grid-template-columns:1fr 52px 1fr;align-items:end;gap:8px}
+.field-label{text-align:center;font-size:12px;font-weight:700;margin-bottom:5px}
+.money-wrap{display:flex;align-items:center;gap:6px}
+.money{
+  width:100%;background:#03080c;color:#fff;border:1px solid #46545e;border-radius:9px;padding:9px 10px;font-size:23px;text-align:center;font-weight:800;outline:none
+}
+.arrow{text-align:center;font-size:39px;padding-bottom:3px}
+.ratio{
+  margin-top:10px;border:1px solid #ffa929;border-radius:11px;padding:8px 13px;display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(90deg,rgba(94,51,0,.22),rgba(10,7,0,.2))
+}
+.ratio-left{font-size:15px;font-weight:850}.coin{font-size:26px;margin-right:8px}
+.ratio-value{color:#ffd02c;font-size:35px;font-weight:900}.ratio-value small{font-size:15px;margin-left:4px}
+
+.result-box{border:1px solid;border-radius:11px;overflow:hidden;background:#020608}
+.result-box.blue{border-color:var(--blue)} .result-box.green{border-color:var(--green)}
+.result-head{text-align:center;font-size:17px;font-weight:900;padding:6px 5px;border-bottom:1px solid currentColor}
+.result-box.blue .result-head{color:var(--blue)} .result-box.green .result-head{color:var(--green)}
+.metrics{padding:4px 11px 8px}
+.metric{display:grid;grid-template-columns:1fr auto;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.12);font-size:13px;font-weight:700}
+.metric:last-child{border-bottom:0}
+.metric strong{font-size:20px}
+.blueTxt{color:var(--blue)} .greenTxt{color:var(--green)} .redTxt{color:var(--red)}
+.evsub{font-size:12px;text-align:right;margin-top:-3px;font-weight:800}
+
+.reco{
+  border:1px solid var(--green);border-radius:12px;padding:10px 12px;text-align:center;
+  background:linear-gradient(90deg,#031a09,#07440e,#031906);
+  box-shadow:0 0 18px rgba(0,255,79,.12),inset 0 0 30px rgba(0,255,79,.08)
+}
+.reco.lower{border-color:var(--blue);background:linear-gradient(90deg,#03111e,#06345e,#03111e)}
+.reco.none{border-color:#69737a;background:linear-gradient(90deg,#101416,#151a1d,#101416)}
+.reco-main{display:flex;align-items:center;justify-content:center;gap:16px}
+.big-arrow{font-size:55px;font-weight:900;line-height:1;color:#00ec55;transform:rotate(-8deg)}
+.reco.lower .big-arrow{color:#2a99ff;transform:rotate(188deg)}
+.reco.none .big-arrow{color:#8a9298;transform:none}
+.reco-title{font-size:34px;font-weight:950;letter-spacing:1px}
+.reco-sub{font-size:12px;font-weight:700}
+.pill{display:inline-block;margin-top:5px;background:#fff;color:#111;border-radius:999px;padding:4px 18px;font-size:12px;font-weight:900}
+
+.bottomnav{
+  position:fixed;left:0;right:0;bottom:0;background:rgba(0,4,7,.96);border-top:1px solid #39444b;
+  display:grid;grid-template-columns:repeat(4,1fr);padding:7px 8px calc(7px + env(safe-area-inset-bottom));backdrop-filter:blur(15px)
+}
+.nav{text-align:center;color:#acb2b7;font-size:11px;font-weight:800}.nav .ico{font-size:23px;display:block;margin-bottom:2px}.nav.active{color:var(--gold)}
+
+@media(max-width:520px){
+  body{padding-left:8px;padding-right:8px}
+  .section{padding:10px 9px;border-radius:13px}
+  .cards{gap:6px}
+  .cardbtn{font-size:23px;min-height:49px}
+  .odds-title{font-size:15px}.odds-input{font-size:31px;width:105px}
+  .money{font-size:20px}.reco-title{font-size:29px}
+  .metric strong{font-size:18px}.title{font-size:23px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <button class="menu" aria-label="menu">☰</button>
+    <div class="title">FIRST PERSON <span class="hi">HiLo</span><div class="subtitle">判定計算ツール</div></div>
+    <button class="help" aria-label="help">?</button>
+  </header>
+
+  <section class="section">
+    <div class="sec-head">
+      <div><span class="step">1</span>現在のカードを選択</div>
+      <button class="reset" id="reset">↻ リセット</button>
+    </div>
+    <div class="cards" id="cards"></div>
+    <div class="scale"><span>低</span><div class="scale-line"></div><span>高</span></div>
+  </section>
+
+  <section class="section">
+    <div class="sec-head"><div><span class="step">2</span>倍率を入力</div></div>
+    <div class="odds-grid">
+      <div class="odds-box blue">
+        <div class="odds-title">LOWER / SAME</div>
+        <div class="odds-sub">（低い または 同じ）</div>
+        <div class="odds-inputrow"><input id="lowOdds" class="odds-input" type="number" inputmode="decimal" step="0.01" value="2.10"><span class="times">×</span></div>
+      </div>
+      <div class="odds-box green">
+        <div class="odds-title">HIGHER / SAME</div>
+        <div class="odds-sub">（高い または 同じ）</div>
+        <div class="odds-inputrow"><input id="highOdds" class="odds-input" type="number" inputmode="decimal" step="0.01" value="1.60"><span class="times">×</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="sec-head"><div><span class="step">3</span>賭け金を入力（倍率を自動計算）</div></div>
+    <div class="stake-row">
+      <div><div class="field-label">現在の賭け金</div><div class="money-wrap"><input id="stakeNow" class="money" type="number" inputmode="decimal" value="1000"><span>円</span></div></div>
+      <div class="arrow">→</div>
+      <div><div class="field-label">次に当てたときの賭け金</div><div class="money-wrap"><input id="stakeNext" class="money" type="number" inputmode="decimal" value="1500"><span>円</span></div></div>
+    </div>
+    <div class="ratio">
+      <div class="ratio-left"><span class="coin">🪙</span>賭け金の倍率</div>
+      <div class="ratio-value" id="stakeRatio">1.50<small>倍</small></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="sec-head"><div><span class="step">4</span>計算結果（期待値）</div></div>
+    <div class="result-grid">
+      <div class="result-box blue">
+        <div class="result-head">LOWER / SAME</div>
+        <div class="metrics">
+          <div class="metric"><span>的中確率</span><strong class="blueTxt" id="lowProb">-</strong></div>
+          <div class="metric"><span>期待値</span><strong id="lowEv">-</strong></div>
+          <div class="evsub" id="lowEvPct">-</div>
+          <div class="metric"><span>純利益（的中時）</span><strong class="blueTxt" id="lowProfit">-</strong></div>
+        </div>
+      </div>
+      <div class="result-box green">
+        <div class="result-head">HIGHER / SAME</div>
+        <div class="metrics">
+          <div class="metric"><span>的中確率</span><strong class="greenTxt" id="highProb">-</strong></div>
+          <div class="metric"><span>期待値</span><strong id="highEv">-</strong></div>
+          <div class="evsub" id="highEvPct">-</div>
+          <div class="metric"><span>純利益（的中時）</span><strong class="greenTxt" id="highProfit">-</strong></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="sec-head"><div><span class="step">5</span>推奨される選択</div></div>
+    <div class="reco" id="reco">
+      <div class="reco-main"><div class="big-arrow" id="recoArrow">➜</div><div><div class="reco-title" id="recoTitle">HIGHER / SAME</div><div class="reco-sub" id="recoSub">（高い または 同じ）</div></div></div>
+      <div class="pill" id="recoPill">● こちらを推奨します！</div>
+    </div>
+  </section>
+</div>
+
+<nav class="bottomnav">
+  <div class="nav active"><span class="ico">▦</span>計算</div>
+  <div class="nav"><span class="ico">◔</span>履歴</div>
+  <div class="nav"><span class="ico">▥</span>統計</div>
+  <div class="nav"><span class="ico">⚙</span>設定</div>
+</nav>
+
+<script>
+const labels=["2","3","4","5","6","7","8","9","10","J","Q","K","A"];
+let rank=6; // 7 = 6th in 2..A ordering
+
+const $=id=>document.getElementById(id);
+const pct=x=>(x*100).toFixed(2)+"%";
+const signed=x=>(x>=0?"+":"")+x.toFixed(3);
+const signedPct=x=>"("+(x>=0?"+":"")+(x*100).toFixed(2)+"%)";
+const yen=x=>(x>=0?"+":"-")+Math.abs(Math.round(x)).toLocaleString()+" 円";
+
+function buildCards(){
+  const wrap=$("cards"); wrap.innerHTML="";
+  labels.forEach((lab,i)=>{
+    const b=document.createElement("button");
+    b.className="cardbtn"+(i+1===rank?" active":"");
+    b.textContent=lab;
+    b.onclick=()=>{rank=i+1;buildCards();calc();};
+    wrap.appendChild(b);
+  });
+}
+function num(id){ return parseFloat($(id).value)||0; }
+
+function calc(){
+  // 2 lowest ... A highest; same counts as win on both sides.
+  const lowP=rank/13;
+  const highP=(14-rank)/13;
+  const lowO=num("lowOdds"), highO=num("highOdds");
+  const stake=Math.max(0,num("stakeNow")), next=Math.max(0,num("stakeNext"));
+  const ratio=stake>0?next/stake:0;
+  $("stakeRatio").innerHTML=ratio.toFixed(2)+"<small>倍</small>";
+
+  const lowEV=lowP*lowO-1;
+  const highEV=highP*highO-1;
+  const lowProfit=stake*(lowO-1);
+  const highProfit=stake*(highO-1);
+
+  $("lowProb").textContent=pct(lowP);
+  $("highProb").textContent=pct(highP);
+  $("lowEv").textContent=signed(lowEV);
+  $("highEv").textContent=signed(highEV);
+  $("lowEvPct").textContent=signedPct(lowEV);
+  $("highEvPct").textContent=signedPct(highEV);
+  $("lowProfit").textContent=yen(lowProfit);
+  $("highProfit").textContent=yen(highProfit);
+
+  $("lowEv").className=lowEV>=0?"greenTxt":"redTxt";
+  $("highEv").className=highEV>=0?"greenTxt":"redTxt";
+  $("lowEvPct").className="evsub "+(lowEV>=0?"greenTxt":"redTxt");
+  $("highEvPct").className="evsub "+(highEV>=0?"greenTxt":"redTxt");
+
+  const reco=$("reco"), arrow=$("recoArrow"), title=$("recoTitle"), sub=$("recoSub"), pill=$("recoPill");
+  reco.className="reco";
+  if(lowEV<=0 && highEV<=0){
+    reco.classList.add("none"); arrow.textContent="—"; title.textContent="BETしない";
+    sub.textContent="（プラス期待値なし）"; pill.textContent="● 見送り推奨";
+  }else if(lowEV>highEV){
+    reco.classList.add("lower"); arrow.textContent="➜"; title.textContent="LOWER / SAME";
+    sub.textContent="（低い または 同じ）"; pill.textContent="● こちらを推奨します！";
+  }else{
+    arrow.textContent="➜"; title.textContent="HIGHER / SAME";
+    sub.textContent="（高い または 同じ）"; pill.textContent="● こちらを推奨します！";
+  }
+}
+
+["lowOdds","highOdds","stakeNow","stakeNext"].forEach(id=>$(id).addEventListener("input",calc));
+$("reset").onclick=()=>{
+  rank=6;$("lowOdds").value="2.10";$("highOdds").value="1.60";$("stakeNow").value="1000";$("stakeNext").value="1500";
+  buildCards();calc();
+};
+
+buildCards();calc();
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+}
+</script>
+</body>
+</html>
